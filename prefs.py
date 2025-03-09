@@ -11,8 +11,10 @@ from bpy.props import (
     )
 
 import re
+from collections import Counter
 
 from .keymaps import keymap_layout
+
 from bpy.app.handlers import persistent
 
 
@@ -48,9 +50,32 @@ class EMPRenderPass(PropertyGroup):
         unduped_name, *_ = re.split("\.\d+$", name)
         return unduped_name
 
-    name: StringProperty(name="name", default="Property")
-    render: BoolProperty(name="render", default=True)
-    value_int: IntProperty(name="int")
+    def make_name_unique(self, name):
+        collection = self.parent_collection()
+        counter = 1
+        names = set(i.name for i in collection)
+
+        stem = self.unduped_name(name)
+
+        counts = Counter(i.name for i in collection)
+        should_change_name = (counts[name] > 1)
+        
+        if should_change_name:
+            while name in names:
+                name = f"{stem}.{counter:03d}"
+                counter += 1
+
+        return name
+
+    def set_unique_name(self, context):
+        self["name"] = self.make_name_unique(self.name)
+
+    name: StringProperty(default="Default", update=set_unique_name)
+    render: BoolProperty(default=True)
+    value_int: IntProperty()
+
+    def initialize_name(self):
+        self.name = self.name
 
     def draw(self, layout):
         layout.prop(self, "name")

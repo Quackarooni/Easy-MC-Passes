@@ -80,8 +80,9 @@ class EMP_OT_ADD_PASS(Operator):
 
     def execute(self, context): 
         collection = get_collection_property(context)
-        collection.add()
-        
+        prop = collection.add()
+        prop.initialize_name()
+
         data = get_active_scene(context)
         max_index = len(collection) - 1
 
