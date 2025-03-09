@@ -30,7 +30,7 @@ def setDefaultCollectionValue():
             prop_item.name = default
 
 
-class ShaderPropDef(PropertyGroup):
+class EMPRenderPass(PropertyGroup):
     def parent_collection(self):
         # this gets the collection that the element is in
         path = self.path_from_id()
@@ -73,7 +73,7 @@ def onFileLoaded(dummy):
 
 
 classes = (
-    ShaderPropDef,
+    EMPRenderPass,
     EasyMCPassesPreferences,
     )
 
@@ -82,7 +82,7 @@ def register():
     for cls in classes:
         bpy.utils.register_class(cls)
 
-    setattr(bpy.types.Scene, "EMP_render_passes", CollectionProperty(type=ShaderPropDef))
+    setattr(bpy.types.Scene, "EMP_render_passes", CollectionProperty(type=EMPRenderPass))
     setattr(bpy.types.Scene, "list_index", IntProperty())
 
     bpy.app.handlers.load_post.append(onFileLoaded)
