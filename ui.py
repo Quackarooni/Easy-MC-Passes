@@ -14,7 +14,7 @@ def get_active_scene(context):
 
 
 def get_collection_property(context):
-    return getattr(context.scene, "custom_object_props")
+    return getattr(context.scene, "EMP_render_passes")
 
 
 class EMP_PT_PASS_MANAGER(Panel):
@@ -33,7 +33,7 @@ class EMP_PT_PASS_MANAGER(Panel):
         scene = context.scene
 
         row = layout.row()
-        row.template_list("EMP_PT_UL_PASSES", "", scene, "custom_object_props", scene, "list_index")
+        row.template_list("EMP_PT_UL_PASSES", "", scene, "EMP_render_passes", scene, "list_index")
 
         ops_col = row.column()
 
@@ -100,6 +100,8 @@ class EMP_OT_REMOVE_PASS(Operator):
 
     @classmethod 
     def poll(cls, context): 
+        prop = get_collection_property(context)
+        
         return get_active_scene(context)
 
     def execute(self, context):

@@ -13,6 +13,21 @@ from bpy.props import (
 import re
 
 from .keymaps import keymap_layout
+from bpy.app.handlers import persistent
+
+
+def setDefaultCollectionValue():
+    prop_collection = bpy.context.scene.EMP_render_passes
+    # set default value if <myCollection> is empty
+    defaults = (
+        ("Name 1"),
+        ("Name 2")
+    )
+
+    for default in defaults:
+        if default not in prop_collection:
+            prop_item = prop_collection.add()
+            prop_item.name = default
 
 
 class ShaderPropDef(PropertyGroup):
@@ -52,6 +67,11 @@ class EasyMCPassesPreferences(AddonPreferences):
 keymap_layout.register_properties(preferences=EasyMCPassesPreferences)
 
 
+@persistent
+def onFileLoaded(dummy):
+    setDefaultCollectionValue()
+
+
 classes = (
     ShaderPropDef,
     EasyMCPassesPreferences,
@@ -62,12 +82,16 @@ def register():
     for cls in classes:
         bpy.utils.register_class(cls)
 
-    setattr(bpy.types.Scene, "custom_object_props", CollectionProperty(type=ShaderPropDef))
+    setattr(bpy.types.Scene, "EMP_render_passes", CollectionProperty(type=ShaderPropDef))
     setattr(bpy.types.Scene, "list_index", IntProperty())
+
+    bpy.app.handlers.load_post.append(onFileLoaded)
 
 def unregister():
     for cls in classes:
         bpy.utils.unregister_class(cls)
 
-    delattr(bpy.types.Scene, "custom_object_props")
+    bpy.app.handlers.load_post.remove(onFileLoaded)
+
+    delattr(bpy.types.Scene, "EMP_render_passes")
     delattr(bpy.types.Scene, "list_index")
