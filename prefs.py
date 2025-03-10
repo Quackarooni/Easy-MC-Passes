@@ -52,6 +52,9 @@ class EMPRenderPass(PropertyGroup):
         else:
             return parent.path_resolve(coll_path)
 
+    def __repr__(self):
+        return f"bpy.data.scenes['{bpy.context.scene.name}'].{self.__class__.__name__}['{self.name}']"
+
     @staticmethod
     def unduped_name(name):
         unduped_name, *_ = re.split("\.\d+$", name)
