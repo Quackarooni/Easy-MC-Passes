@@ -22,8 +22,15 @@ def setDefaultCollectionValue():
     prop_collection = bpy.context.scene.EMP_render_passes
     # set default value if <myCollection> is empty
     defaults = (
-        ("Name 1"),
-        ("Name 2")
+        ("Combined"),
+        ("Color"),
+        ("Mist"),
+        ("Normal"),
+        ("Freestyle"),
+        ("Cavity"),
+        ("Shading"),
+        ("Shadow"),
+        ("Emission"),
     )
 
     for default in defaults:
