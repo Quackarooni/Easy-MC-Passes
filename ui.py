@@ -1,6 +1,8 @@
 import bpy
 from bpy.types import Operator, Panel, UIList
 
+from .operators import EMP_OT_EXPORT_PASSES
+
 
 def clamp(value, lower, upper):
     return lower if value < lower else upper if value > upper else value
@@ -26,7 +28,6 @@ class EMP_PT_PASS_MANAGER(Panel):
     @classmethod
     def poll(cls, context):
         return True
-    
 
     def draw(self, context):
         layout = self.layout
@@ -56,6 +57,21 @@ class EMP_PT_PASS_MANAGER(Panel):
             active_prop.draw(layout)
         except IndexError:
             pass
+
+
+class EMP_PT_EXPORT_PASSES(Panel):
+    bl_label = "Export Passes"
+    bl_space_type = 'VIEW_3D'
+    bl_region_type = "UI"
+    bl_category = "Easy MC Passes"
+
+    @classmethod
+    def poll(cls, context):
+        return True
+    
+    def draw(self, context):
+        layout = self.layout
+        layout.operator(EMP_OT_EXPORT_PASSES.bl_idname)
         
 
 class EMP_PT_UL_PASSES(UIList):
@@ -157,6 +173,7 @@ class EMP_OT_MOVE_PASS(Operator):
 
 classes = (
     EMP_PT_PASS_MANAGER,
+    EMP_PT_EXPORT_PASSES,
     EMP_PT_UL_PASSES,
     EMP_OT_ADD_PASS,
     EMP_OT_REMOVE_PASS,
