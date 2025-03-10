@@ -77,9 +77,8 @@ class EMPRenderPass(PropertyGroup):
     def set_unique_name(self, context):
         self["name"] = self.make_name_unique(self.name)
 
-    name: StringProperty(default="Default", update=set_unique_name)
-    render: BoolProperty(default=True)
-    value_int: IntProperty()
+    name: StringProperty(name="Name", default="Default", update=set_unique_name)
+    render: BoolProperty(name="Render", default=True)
 
     def initialize_name(self):
         self.name = self.name
