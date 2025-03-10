@@ -1,3 +1,6 @@
+import bpy
+
+
 def get_enabled_passes(collection):
     for render_pass in collection:
         if render_pass.render:
@@ -11,6 +14,13 @@ def add_node(tree, node_type, *_, **props):
         setattr(node, prop, value)
 
     return node
+
+
+def copy_scene(scene, name):
+    new_scene = scene.copy()
+    new_scene.name = name
+    
+    return new_scene
 
 
 def create_file_outputs(node, outputs):

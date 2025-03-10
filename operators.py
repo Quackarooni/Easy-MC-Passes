@@ -2,7 +2,7 @@ import bpy
 from bpy.types import Operator
 
 from . import utils
-from .utils import add_node, create_file_outputs
+from .utils import add_node, copy_scene, create_file_outputs
 
 
 class EMP_OT_EXPORT_PASSES(Operator):
@@ -16,7 +16,12 @@ class EMP_OT_EXPORT_PASSES(Operator):
         return any_passes_enabled
 
     def execute(self, context):
-        collection = context.scene.EMP_render_passes
+        scene = context.scene
+        main_scene = copy_scene(scene, "EMP_Export_Passes")
+        cavity_scene = copy_scene(scene, "EMP_Workbench_Cavity")
+        shading_scene = copy_scene(scene, "EMP_Shading_and_Shadows")
+
+        collection = scene.EMP_render_passes
         passes = utils.get_enabled_passes(collection)
 
         tree = context.scene.node_tree
