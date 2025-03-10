@@ -1,12 +1,12 @@
 from .keymap_ui import KeymapItemDef, KeymapStructure, KeymapLayout
 from .operators import (
-    EMP_Template_OT_Operator,
+    EMP_OT_EXPORT_PASSES,
 )
 
 
 keymap_structure = KeymapStructure(
     [
-        KeymapItemDef(EMP_Template_OT_Operator.bl_idname, keymap_name="Node Editor", space_type="NODE_EDITOR"),
+        KeymapItemDef(EMP_OT_EXPORT_PASSES.bl_idname, keymap_name="Node Editor", space_type="NODE_EDITOR"),
     ]
 )
 

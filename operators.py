@@ -1,22 +1,27 @@
 import bpy
 from bpy.types import Operator
 
+from . import utils
 
-class EMP_Template_OT_Operator(Operator):
-    bl_idname = "node.addon_name_operator"
-    bl_label = "Addon's operator baseclass"
-    bl_options = {'REGISTER', 'UNDO_GROUPED'} 
+class EMP_OT_EXPORT_PASSES(Operator):
+    bl_idname = "render.emp_export_passes"
+    bl_label = "Export Passes"
+    bl_options = {'REGISTER'} 
 
     @classmethod
     def poll(cls, context):
-        pass
+        any_passes_enabled = any(i.render for i in context.scene.EMP_render_passes)
+        return any_passes_enabled
 
     def execute(self, context):
-        pass
+        collection = context.scene.EMP_render_passes
+        passes = utils.get_enabled_passes(collection)
+
+        return {'FINISHED'}
 
 
 classes = (
-    EMP_Template_OT_Operator,
+    EMP_OT_EXPORT_PASSES,
 )
 
 
