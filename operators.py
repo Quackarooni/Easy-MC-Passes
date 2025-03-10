@@ -2,6 +2,8 @@ import bpy
 from bpy.types import Operator
 
 from . import utils
+from .utils import add_node, create_file_outputs
+
 
 class EMP_OT_EXPORT_PASSES(Operator):
     bl_idname = "render.emp_export_passes"
@@ -16,6 +18,16 @@ class EMP_OT_EXPORT_PASSES(Operator):
     def execute(self, context):
         collection = context.scene.EMP_render_passes
         passes = utils.get_enabled_passes(collection)
+
+        tree = context.scene.node_tree
+
+        output_node = add_node(tree, "CompositorNodeOutputFile", width=360)
+        exr_output_node = add_node(tree, "CompositorNodeOutputFile", width=360)
+        exr_output_node.format.file_format = "OPEN_EXR_MULTILAYER"
+
+        names = tuple(i.name for i in passes)
+        create_file_outputs(output_node, outputs=names)
+        create_file_outputs(exr_output_node, outputs=names)
 
         return {'FINISHED'}
 
