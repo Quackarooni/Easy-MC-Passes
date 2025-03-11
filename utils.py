@@ -148,7 +148,7 @@ pass_name_map = {
     "UV" : "use_pass_uv",
     "Object index" : "use_pass_object_index",
     "Material index" : "use_pass_material_index",
-    "Color" : "use_pass_diffuse_direct",
+    "Color" : "use_pass_diffuse_color",
     "Diffuse Direct" : "use_pass_diffuse_direct",
     "Diffuse Indirect" : "use_pass_diffuse_indirect",
     "Diffuse color" : "use_pass_diffuse_color",
