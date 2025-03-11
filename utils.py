@@ -167,7 +167,7 @@ def add_pass(scene, pass_name):
     view_layer = scene.view_layers[0]
 
     if pass_name == "Freestyle":
-        scene.render.use_freestyle
+        scene.render.use_freestyle = True
         
     else:
         setattr(view_layer, pass_name_map[pass_name], True)
