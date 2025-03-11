@@ -2,7 +2,7 @@ import bpy
 from bpy.types import Operator
 
 from . import utils
-from .utils import add_node, link_pass_sockets, copy_scene, create_file_outputs, init_main_passes_scene, init_cavity_scene, init_shading_scene
+from .utils import add_node, get_collection_property, link_pass_sockets, copy_scene, create_file_outputs, init_main_passes_scene, init_cavity_scene, init_shading_scene
 
 
 class EMP_OT_EXPORT_PASSES(Operator):
@@ -12,14 +12,14 @@ class EMP_OT_EXPORT_PASSES(Operator):
 
     @classmethod
     def poll(cls, context):
-        any_passes_enabled = any(i.render for i in context.scene.EMP_render_passes)
+        any_passes_enabled = any(i.render for i in get_collection_property(context))
         return any_passes_enabled
 
     def execute(self, context):
         scene = context.scene
         scenes = context.blend_data.scenes
 
-        collection = scene.EMP_render_passes
+        collection = get_collection_property(context)
         passes = tuple(utils.get_enabled_passes(collection))
         names = tuple(i.name for i in passes)
         main_passes = tuple(i.name for i in passes if i.name not in {"Shading", "Shadow", "Cavity"})

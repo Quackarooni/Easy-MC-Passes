@@ -7,6 +7,7 @@ from bpy.props import (
     BoolProperty,
     CollectionProperty,
     IntProperty,
+    PointerProperty,
     StringProperty,
     )
 
@@ -14,12 +15,13 @@ import re
 from collections import Counter
 
 from .keymaps import keymap_layout
+from .utils import get_collection_property
 
 from bpy.app.handlers import persistent
 
 
 def setDefaultCollectionValue():
-    prop_collection = bpy.context.scene.EMP_render_passes
+    prop_collection = get_collection_property(bpy.context)
     # set default value if <myCollection> is empty
     defaults = (
         ("Combined"),
@@ -90,6 +92,11 @@ class EMPRenderPass(PropertyGroup):
         layout.prop(self, "name")
 
 
+class EasyMCPassesProperties(PropertyGroup):
+    render_passes : CollectionProperty(type=EMPRenderPass)
+    active_pass_index : IntProperty(min=0)
+
+
 class EasyMCPassesPreferences(AddonPreferences):
     bl_idname = __package__
 
@@ -108,6 +115,7 @@ def onFileLoaded(dummy):
 
 classes = (
     EMPRenderPass,
+    EasyMCPassesProperties,
     EasyMCPassesPreferences,
     )
 
@@ -116,9 +124,7 @@ def register():
     for cls in classes:
         bpy.utils.register_class(cls)
 
-    setattr(bpy.types.Scene, "EMP_render_passes", CollectionProperty(type=EMPRenderPass))
-    setattr(bpy.types.Scene, "list_index", IntProperty())
-
+    setattr(bpy.types.Scene, "EMP_Properties", PointerProperty(type=EasyMCPassesProperties))
     bpy.app.handlers.load_post.append(onFileLoaded)
 
 def unregister():
@@ -126,6 +132,4 @@ def unregister():
         bpy.utils.unregister_class(cls)
 
     bpy.app.handlers.load_post.remove(onFileLoaded)
-
-    delattr(bpy.types.Scene, "EMP_render_passes")
-    delattr(bpy.types.Scene, "list_index")
+    delattr(bpy.types.Scene, "EMP_Properties")

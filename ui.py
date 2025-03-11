@@ -2,21 +2,18 @@ import bpy
 from bpy.types import Operator, Panel, UIList
 
 from .operators import EMP_OT_EXPORT_PASSES
+from .utils import get_collection_property
 
 
 def clamp(value, lower, upper):
     return lower if value < lower else upper if value > upper else value
 
 
-def get_active_scene(context):
+def get_properties(context):
     try:
-        return context.scene
+        return context.scene.EMP_Properties
     except AttributeError:
         return
-
-
-def get_collection_property(context):
-    return getattr(context.scene, "EMP_render_passes")
 
 
 class EMP_PT_PASS_MANAGER(Panel):
@@ -31,10 +28,10 @@ class EMP_PT_PASS_MANAGER(Panel):
 
     def draw(self, context):
         layout = self.layout
-        scene = context.scene
 
         row = layout.row()
-        row.template_list("EMP_PT_UL_PASSES", "", scene, "EMP_render_passes", scene, "list_index")
+        data = get_properties(context)
+        row.template_list("EMP_PT_UL_PASSES", "", data, "render_passes", data, "active_pass_index")
 
         ops_col = row.column()
 
@@ -53,7 +50,7 @@ class EMP_PT_PASS_MANAGER(Panel):
         collection = get_collection_property(context)
 
         try:
-            active_prop = collection[scene.list_index]
+            active_prop = collection[data.active_pass_index]
             active_prop.draw(layout)
         except IndexError:
             pass
@@ -99,11 +96,11 @@ class EMP_OT_ADD_PASS(Operator):
         prop = collection.add()
         prop.initialize_name()
 
-        data = get_active_scene(context)
+        data = get_properties(context)
         max_index = len(collection) - 1
 
-        intended_index = clamp(data.list_index + 1, lower=0, upper=max_index)
-        data.list_index = intended_index
+        intended_index = clamp(data.active_pass_index + 1, lower=0, upper=max_index)
+        data.active_pass_index = intended_index
         collection.move(max_index, intended_index)
 
         return {'FINISHED'}
@@ -117,15 +114,15 @@ class EMP_OT_REMOVE_PASS(Operator):
 
     @classmethod 
     def poll(cls, context):
-        return get_active_scene(context)
+        return get_properties(context)
 
     def execute(self, context):
-        data = get_active_scene(context)
+        data = get_properties(context)
         prop = get_collection_property(context)
-        index = data.list_index
+        index = data.active_pass_index
 
         prop.remove(index) 
-        data.list_index = min(max(0, index - 1), len(prop) - 1) 
+        data.active_pass_index = min(max(0, index - 1), len(prop) - 1) 
         return{'FINISHED'}
 
 
@@ -152,16 +149,16 @@ class EMP_OT_MOVE_PASS(Operator):
 
     @classmethod 
     def poll(cls, context): 
-        return get_active_scene(context)
+        return get_properties(context)
 
     def move_index(self, collection, data, index): 
         list_length = len(collection) - 1 # (index starts at 0) 
         new_index = index + (-1 if self.direction == 'UP' else 1)
-        data.list_index = max(0, min(new_index, list_length)) 
+        data.active_pass_index = max(0, min(new_index, list_length)) 
 
     def execute(self, context): 
-        data = get_active_scene(context)
-        index = data.list_index
+        data = get_properties(context)
+        index = data.active_pass_index
         my_list = get_collection_property(context)
 
         neighbor = index + (-1 if self.direction == 'UP' else 1) 

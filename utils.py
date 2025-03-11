@@ -10,6 +10,10 @@ def fetch_user_preferences(attr_id=None):
         return getattr(prefs, attr_id)
 
 
+def get_collection_property(context):
+    return getattr(context.scene.EMP_Properties, "render_passes")
+
+
 pass_link_map = {
     "Combined" : ("Main Passes", "Image"),
     "Color" : ("Main Passes", "DiffCol"),
