@@ -50,7 +50,7 @@ class EMP_OT_EXPORT_PASSES(Operator):
             cavity_scene = copy_scene(scene, "EMP_Workbench_Cavity", clear_tree=True)
             init_cavity_scene(cavity_scene)
 
-            cavity_pass_node = add_node(tree, "CompositorNodeRLayers", name="Cavity Pass", location=(0.0, 0.0))
+            cavity_pass_node = add_node(tree, "CompositorNodeRLayers", name="Cavity Pass", location=(0.0, -60.0))
             cavity_pass_node.scene = cavity_scene
 
         create_file_outputs(output_node, outputs=names)
