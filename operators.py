@@ -29,23 +29,30 @@ class EMP_OT_EXPORT_PASSES(Operator):
                 scenes.remove(scenes[scene_name])
 
         main_scene = copy_scene(scene, "EMP_Export_Passes", clear_tree=True)
-        cavity_scene = copy_scene(scene, "EMP_Workbench_Cavity", clear_tree=True)
-        shading_scene = copy_scene(scene, "EMP_Shading_and_Shadows", clear_tree=True)
-
         init_main_passes_scene(main_scene, passes=main_passes)
-        init_cavity_scene(cavity_scene)
-        init_shading_scene(shading_scene)
 
-        collection = scene.EMP_render_passes
-        passes = utils.get_enabled_passes(collection)
-
-        tree = context.scene.node_tree
-
-        output_node = add_node(tree, "CompositorNodeOutputFile", width=360)
-        exr_output_node = add_node(tree, "CompositorNodeOutputFile", width=360)
+        tree = main_scene.node_tree
+        output_node = add_node(tree, "CompositorNodeOutputFile", name="File Output (Images)", width=360, location=(500.0, 450.0))
+        exr_output_node = add_node(tree, "CompositorNodeOutputFile", name="File Output (EXR)", width=360, location=(500.0, 160.0))
         exr_output_node.format.file_format = "OPEN_EXR_MULTILAYER"
 
-        names = tuple(i.name for i in passes)
+        main_passes_node = add_node(tree, "CompositorNodeRLayers", name="Main Passes", location=(0.0, 450.0))
+        main_passes_node.scene = main_scene
+
+        if ("Shading" in names) or ("Shadow" in names):
+            shading_scene = copy_scene(scene, "EMP_Shading_and_Shadows", clear_tree=True)
+            init_shading_scene(shading_scene)
+
+            shading_passes_node = add_node(tree, "CompositorNodeRLayers", name="Shading Passes", location=(0.0, 160.0))
+            shading_passes_node.scene = shading_scene
+
+        if ("Cavity" in names):
+            cavity_scene = copy_scene(scene, "EMP_Workbench_Cavity", clear_tree=True)
+            init_cavity_scene(cavity_scene)
+
+            cavity_pass_node = add_node(tree, "CompositorNodeRLayers", name="Cavity Pass", location=(0.0, 0.0))
+            cavity_pass_node.scene = cavity_scene
+
         create_file_outputs(output_node, outputs=names)
         create_file_outputs(exr_output_node, outputs=names)
 
