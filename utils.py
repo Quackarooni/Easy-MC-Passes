@@ -138,12 +138,50 @@ def init_cavity_scene(scene):
     set_standard_view_transform(scene)
 
 
+pass_name_map = {
+    "Combined" : "use_pass_combined",
+    "Z" : "use_pass_z",
+    "Mist" : "use_pass_mist",
+    "Position" : "use_pass_position",
+    "Normal" : "use_pass_normal",
+    "Vector" : "use_pass_vector",
+    "UV" : "use_pass_uv",
+    "Object index" : "use_pass_object_index",
+    "Material index" : "use_pass_material_index",
+    "Color" : "use_pass_diffuse_direct",
+    "Diffuse Direct" : "use_pass_diffuse_direct",
+    "Diffuse Indirect" : "use_pass_diffuse_indirect",
+    "Diffuse color" : "use_pass_diffuse_color",
+    "Glossy Direct" : "use_pass_glossy_direct",
+    "Glossy Indirect" : "use_pass_glossy_indirect",
+    "Glossy Color" : "use_pass_glossy_color",
+    "Transmission Direct" : "use_pass_transmission_direct",
+    "Transmission Indirect" : "use_pass_transmission_indirect",
+    "Transmission Color" : "use_pass_transmission_color",
+    "Emission" : "use_pass_emit",
+    "Environment" : "use_pass_environment",
+    "Ambient Occlusion" : "use_pass_ambient_occlusion"
+}
+
+def add_pass(scene, pass_name):
+    view_layer = scene.view_layers[0]
+
+    if pass_name == "Freestyle":
+        scene.render.use_freestyle
+        
+    else:
+        setattr(view_layer, pass_name_map[pass_name], True)
+
+
 def init_main_passes_scene(scene, passes):
     render = scene.render
     render.engine = 'CYCLES'
 
     view_layer = scene.view_layers[0]
     clear_passes(render, view_layer)
+
+    for pass_name in passes:
+        add_pass(scene, pass_name)
 
 
 def init_shading_scene(scene):

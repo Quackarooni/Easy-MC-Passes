@@ -2,7 +2,7 @@ import bpy
 from bpy.types import Operator
 
 from . import utils
-from .utils import add_node, copy_scene, create_file_outputs, init_cavity_scene, init_shading_scene
+from .utils import add_node, copy_scene, create_file_outputs, init_main_passes_scene, init_cavity_scene, init_shading_scene
 
 
 class EMP_OT_EXPORT_PASSES(Operator):
@@ -19,6 +19,11 @@ class EMP_OT_EXPORT_PASSES(Operator):
         scene = context.scene
         scenes = context.blend_data.scenes
 
+        collection = scene.EMP_render_passes
+        passes = tuple(utils.get_enabled_passes(collection))
+        names = tuple(i.name for i in passes)
+        main_passes = tuple(i.name for i in passes if i.name not in {"Shading", "Shadow", "Cavity"})
+
         for scene_name in ("EMP_Export_Passes", "EMP_Workbench_Cavity", "EMP_Shading_and_Shadows"):
             if scene_name in scenes:
                 scenes.remove(scenes[scene_name])
@@ -27,6 +32,7 @@ class EMP_OT_EXPORT_PASSES(Operator):
         cavity_scene = copy_scene(scene, "EMP_Workbench_Cavity", clear_tree=True)
         shading_scene = copy_scene(scene, "EMP_Shading_and_Shadows", clear_tree=True)
 
+        init_main_passes_scene(main_scene, passes=main_passes)
         init_cavity_scene(cavity_scene)
         init_shading_scene(shading_scene)
 
