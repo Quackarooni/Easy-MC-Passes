@@ -17,6 +17,12 @@ class EMP_OT_EXPORT_PASSES(Operator):
 
     def execute(self, context):
         scene = context.scene
+        scenes = context.blend_data.scenes
+
+        for scene_name in ("EMP_Export_Passes", "EMP_Workbench_Cavity", "EMP_Shading_and_Shadows"):
+            if scene_name in scenes:
+                scenes.remove(scenes[scene_name])
+
         main_scene = copy_scene(scene, "EMP_Export_Passes", clear_tree=True)
         cavity_scene = copy_scene(scene, "EMP_Workbench_Cavity", clear_tree=True)
         shading_scene = copy_scene(scene, "EMP_Shading_and_Shadows", clear_tree=True)
