@@ -2,7 +2,7 @@ import bpy
 from bpy.types import Operator
 
 from . import utils
-from .utils import add_node, copy_scene, create_file_outputs, init_main_passes_scene, init_cavity_scene, init_shading_scene
+from .utils import add_node, link_pass_sockets, copy_scene, create_file_outputs, init_main_passes_scene, init_cavity_scene, init_shading_scene
 
 
 class EMP_OT_EXPORT_PASSES(Operator):
@@ -55,6 +55,9 @@ class EMP_OT_EXPORT_PASSES(Operator):
 
         create_file_outputs(output_node, outputs=names)
         create_file_outputs(exr_output_node, outputs=names)
+
+        for render_pass in passes:
+            link_pass_sockets(tree, render_pass.name)
 
         return {'FINISHED'}
 

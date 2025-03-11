@@ -10,6 +10,32 @@ def fetch_user_preferences(attr_id=None):
         return getattr(prefs, attr_id)
 
 
+pass_link_map = {
+    "Combined" : ("Main Passes", "Image"),
+    "Color" : ("Main Passes", "DiffCol"),
+    "Mist" : ("Main Passes", "Mist"),
+    "Normal" : ("Main Passes", "Normal"),
+    "Emission" : ("Main Passes", "Emit"),
+    "Freestyle" : ("Main Passes", "Freestyle"),
+    "Shading" : ("Shading Passes", "Combined_EMP_ShadingPass"),
+    "Shadow" : ("Shading Passes", "Combined_EMP_ShadowPass"),
+    "Cavity" : ("Cavity Pass", "Image"),
+}
+
+
+def link_pass_sockets(tree, pass_name):
+    nodes = tree.nodes
+    output_node1 = nodes["File Output (Images)"]
+    output_node2 = nodes["File Output (EXR)"]
+    output_soc = pass_name
+
+    input_node, input_soc = pass_link_map[pass_name]
+    input_node = nodes[input_node]
+
+    tree.links.new(input_node.outputs[input_soc], output_node1.inputs[output_soc])
+    tree.links.new(input_node.outputs[input_soc], output_node2.inputs[output_soc])
+
+
 def get_enabled_passes(collection):
     for render_pass in collection:
         if render_pass.render:
