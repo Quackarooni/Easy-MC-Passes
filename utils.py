@@ -50,6 +50,14 @@ def create_light(name, type, *_, **props):
     return light
 
 
+def set_standard_view_transform(scene):
+    scene.display_settings.display_device = 'sRGB'
+    scene.view_settings.view_transform = 'Standard'
+    scene.view_settings.look = 'None'
+    scene.view_settings.exposure = 0
+    scene.view_settings.gamma = 1
+
+
 def create_blank_material(name):
     blank_material = bpy.data.materials.new(name)
     blank_material.use_nodes = True
@@ -87,11 +95,7 @@ def init_cavity_scene(scene):
     shading.curvature_ridge_factor = 2.0
     shading.curvature_valley_factor = 0.0
 
-    scene.display_settings.display_device = 'sRGB'
-    scene.view_settings.view_transform = 'Standard'
-    scene.view_settings.look = 'None'
-    scene.view_settings.exposure = 0
-    scene.view_settings.gamma = 1
+    set_standard_view_transform(scene)
 
 
 def init_shading_scene(scene):
@@ -152,11 +156,7 @@ def init_shading_scene(scene):
     blank_material = create_blank_material("EMP_BlankMaterial")
     view_layer.material_override = blank_material
 
-    scene.display_settings.display_device = 'sRGB'
-    scene.view_settings.view_transform = 'Standard'
-    scene.view_settings.look = 'None'
-    scene.view_settings.exposure = 0
-    scene.view_settings.gamma = 1
+    set_standard_view_transform(scene)
 
     depsgraph = bpy.context.evaluated_depsgraph_get() 
     depsgraph.update()
