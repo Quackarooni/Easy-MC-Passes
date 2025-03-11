@@ -109,6 +109,7 @@ def create_blank_material(name):
 
 def clear_passes(render, view_layer):
     render.use_freestyle = False
+    view_layer.use_freestyle = False
     
     view_layer.use_pass_combined = False
     view_layer.use_pass_z = False
@@ -199,6 +200,8 @@ def add_pass(scene, pass_name):
 
     if pass_name == "Freestyle":
         scene.render.use_freestyle = True
+        view_layer.use_freestyle = True
+        view_layer.freestyle_settings.as_render_pass = True
         
     else:
         setattr(view_layer, pass_name_map[pass_name], True)
