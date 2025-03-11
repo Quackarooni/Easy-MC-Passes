@@ -76,7 +76,9 @@ def create_blank_material(name):
     return blank_material
 
 
-def clear_view_layer_passes(view_layer):
+def clear_passes(render, view_layer):
+    render.use_freestyle = False
+    
     view_layer.use_pass_combined = False
     view_layer.use_pass_z = False
     view_layer.use_pass_mist = False
@@ -136,13 +138,20 @@ def init_cavity_scene(scene):
     set_standard_view_transform(scene)
 
 
+def init_main_passes_scene(scene, passes):
+    render = scene.render
+    render.engine = 'CYCLES'
+
+    view_layer = scene.view_layers[0]
+    clear_passes(render, view_layer)
+
+
 def init_shading_scene(scene):
     render = scene.render
     render.engine = 'CYCLES'
-    render.use_freestyle = False
 
     view_layer = scene.view_layers[0]
-    clear_view_layer_passes(view_layer)
+    clear_passes(render, view_layer)
     
     shading_light_data = create_light(name="EMP_ShadingPass_Light", type='SUN', angle=0, use_shadow=False)
     shading_light_data.cycles.max_bounces = 0
