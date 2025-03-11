@@ -55,9 +55,10 @@ def add_node(tree, node_type, *_, **props):
     return node
 
 
-def copy_scene(scene, name, clear_tree=False):
-    new_scene = scene.copy()
+def create_scene(base_scene, name, clear_tree=False):
+    new_scene = base_scene.copy()
     new_scene.name = name
+    new_scene.use_nodes = True
     
     if clear_tree:
         tree = new_scene.node_tree

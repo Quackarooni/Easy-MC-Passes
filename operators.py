@@ -2,7 +2,7 @@ import bpy
 from bpy.types import Operator
 
 from . import utils
-from .utils import add_node, get_collection_property, link_pass_sockets, copy_scene, create_file_outputs, init_main_passes_scene, init_cavity_scene, init_shading_scene
+from .utils import add_node, get_collection_property, link_pass_sockets, create_scene, create_file_outputs, init_main_passes_scene, init_cavity_scene, init_shading_scene
 
 
 class EMP_OT_EXPORT_PASSES(Operator):
@@ -28,7 +28,7 @@ class EMP_OT_EXPORT_PASSES(Operator):
             if scene_name in scenes:
                 scenes.remove(scenes[scene_name])
 
-        main_scene = copy_scene(scene, "EMP_Export_Passes", clear_tree=True)
+        main_scene = create_scene(scene, "EMP_Export_Passes", clear_tree=True)
         init_main_passes_scene(main_scene, passes=main_passes)
 
         tree = main_scene.node_tree
@@ -40,14 +40,14 @@ class EMP_OT_EXPORT_PASSES(Operator):
         main_passes_node.scene = main_scene
 
         if ("Shading" in names) or ("Shadow" in names):
-            shading_scene = copy_scene(scene, "EMP_Shading_and_Shadows", clear_tree=True)
+            shading_scene = create_scene(scene, "EMP_Shading_and_Shadows", clear_tree=True)
             init_shading_scene(shading_scene)
 
             shading_passes_node = add_node(tree, "CompositorNodeRLayers", name="Shading Passes", location=(0.0, 160.0))
             shading_passes_node.scene = shading_scene
 
         if ("Cavity" in names):
-            cavity_scene = copy_scene(scene, "EMP_Workbench_Cavity", clear_tree=True)
+            cavity_scene = create_scene(scene, "EMP_Workbench_Cavity", clear_tree=True)
             init_cavity_scene(cavity_scene)
 
             cavity_pass_node = add_node(tree, "CompositorNodeRLayers", name="Cavity Pass", location=(0.0, -60.0))
