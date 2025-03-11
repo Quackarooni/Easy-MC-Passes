@@ -17,9 +17,9 @@ class EMP_OT_EXPORT_PASSES(Operator):
 
     def execute(self, context):
         scene = context.scene
-        main_scene = copy_scene(scene, "EMP_Export_Passes")
-        cavity_scene = copy_scene(scene, "EMP_Workbench_Cavity")
-        shading_scene = copy_scene(scene, "EMP_Shading_and_Shadows")
+        main_scene = copy_scene(scene, "EMP_Export_Passes", clear_tree=True)
+        cavity_scene = copy_scene(scene, "EMP_Workbench_Cavity", clear_tree=True)
+        shading_scene = copy_scene(scene, "EMP_Shading_and_Shadows", clear_tree=True)
 
         init_cavity_scene(cavity_scene)
         init_shading_scene(shading_scene)
