@@ -16,7 +16,7 @@ import re
 from collections import Counter
 
 from .keymaps import keymap_layout
-from .utils import get_addon_property
+from .utils import fetch_user_preferences, get_addon_property
 
 from bpy.app.handlers import persistent
 
@@ -97,17 +97,29 @@ class EMPRenderPass(PropertyGroup):
 
 
 class EasyMCPassesProperties(PropertyGroup):
+    def get_default_export_path(self):
+        export_path = self.get("export_path", fetch_user_preferences("default_export_path"))
+        self["export_path"] = export_path
+        return export_path
+        
+    def set_default_export_path(self, value):
+        self["export_path"] = value
+    
     render_passes : CollectionProperty(name="Render Passes", type=EMPRenderPass)
     active_pass_index : IntProperty(name="Active Index", min=0)
-    export_path : StringProperty(name="Export Path", subtype='FILE_PATH')
+    export_path : StringProperty(name="Export Path", subtype='FILE_PATH', get=get_default_export_path, set=set_default_export_path)
     light_direction : FloatVectorProperty(name="Light Direction", subtype="EULER", precision=5, step=100)
 
 
 class EasyMCPassesPreferences(AddonPreferences):
     bl_idname = __package__
+    
+    default_export_path : StringProperty(name="Default Export Path", default="/tmp\\", subtype='FILE_PATH')
 
     def draw(self, context):
         layout = self.layout
+        layout.prop(self, "default_export_path")
+
         keymap_layout.draw_keyboard_shorcuts(self, layout, context)
 
 
