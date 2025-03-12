@@ -68,6 +68,9 @@ class EMP_PT_EXPORT_PASSES(Panel):
     
     def draw(self, context):
         layout = self.layout
+        data = context.scene.EMP_Properties
+        
+        layout.prop(data, "export_path", text="", placeholder="Export Path")
         layout.operator(EMP_OT_EXPORT_PASSES.bl_idname)
         
 
