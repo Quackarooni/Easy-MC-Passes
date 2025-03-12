@@ -14,6 +14,10 @@ def get_collection_property(context):
     return getattr(context.scene.EMP_Properties, "render_passes")
 
 
+def get_export_path(context):
+    return getattr(context.scene.EMP_Properties, "export_path")
+
+
 pass_link_map = {
     "Combined" : ("Main Passes", "Image"),
     "Color" : ("Main Passes", "DiffCol"),

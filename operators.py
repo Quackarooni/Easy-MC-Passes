@@ -2,7 +2,7 @@ import bpy
 from bpy.types import Operator
 
 from . import utils
-from .utils import add_node, get_collection_property, link_pass_sockets, create_scene, create_file_outputs, init_main_passes_scene, init_cavity_scene, init_shading_scene
+from .utils import add_node, get_collection_property, get_export_path, link_pass_sockets, create_scene, create_file_outputs, init_main_passes_scene, init_cavity_scene, init_shading_scene
 
 
 class EMP_OT_EXPORT_PASSES(Operator):
@@ -19,6 +19,8 @@ class EMP_OT_EXPORT_PASSES(Operator):
         scene = context.scene
         scenes = context.blend_data.scenes
 
+        export_path = get_export_path(context)
+
         collection = get_collection_property(context)
         passes = tuple(utils.get_enabled_passes(collection))
         names = tuple(i.name for i in passes)
@@ -30,10 +32,10 @@ class EMP_OT_EXPORT_PASSES(Operator):
 
         main_scene = create_scene(scene, "EMP_Export_Passes", clear_tree=True)
         init_main_passes_scene(main_scene, passes=main_passes)
-
+        
         tree = main_scene.node_tree
-        output_node = add_node(tree, "CompositorNodeOutputFile", name="File Output (Images)", width=360, location=(500.0, 450.0))
-        exr_output_node = add_node(tree, "CompositorNodeOutputFile", name="File Output (EXR)", width=360, location=(500.0, 160.0))
+        output_node = add_node(tree, "CompositorNodeOutputFile", name="File Output (Images)", base_path=export_path, width=360, location=(500.0, 450.0))
+        exr_output_node = add_node(tree, "CompositorNodeOutputFile", name="File Output (EXR)", base_path=export_path, width=360, location=(500.0, 160.0))
         exr_output_node.format.file_format = "OPEN_EXR_MULTILAYER"
 
         main_passes_node = add_node(tree, "CompositorNodeRLayers", name="Main Passes", location=(0.0, 450.0))
