@@ -93,7 +93,9 @@ class EMPRenderPass(PropertyGroup):
 
 
 class EasyMCPassesProperties(PropertyGroup):
-    export_path : StringProperty(subtype='FILE_PATH')
+    render_passes : CollectionProperty(name="Render Passes", type=EMPRenderPass)
+    active_pass_index : IntProperty(name="Active Index", min=0)
+    export_path : StringProperty(name="Export Path", subtype='FILE_PATH')
 
 
 class EasyMCPassesPreferences(AddonPreferences):
