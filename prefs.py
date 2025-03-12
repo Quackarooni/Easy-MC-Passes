@@ -16,13 +16,13 @@ import re
 from collections import Counter
 
 from .keymaps import keymap_layout
-from .utils import get_collection_property
+from .utils import get_addon_property
 
 from bpy.app.handlers import persistent
 
 
 def setDefaultCollectionValue():
-    prop_collection = get_collection_property(bpy.context)
+    prop_collection = get_addon_property("render_passes")
     # set default value if <myCollection> is empty
     defaults = (
         ("Combined"),

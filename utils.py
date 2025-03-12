@@ -10,12 +10,11 @@ def fetch_user_preferences(attr_id=None):
         return getattr(prefs, attr_id)
 
 
-def get_collection_property(context):
-    return getattr(context.scene.EMP_Properties, "render_passes")
-
-
-def get_export_path(context):
-    return getattr(context.scene.EMP_Properties, "export_path")
+def get_addon_property(prop_name, scene=None):
+    if scene is None:
+        scene = bpy.context.scene
+    
+    return getattr(scene.EMP_Properties, prop_name)
 
 
 def load_image(name, path, replace_existing=False):
@@ -255,11 +254,13 @@ def init_shading_scene(scene):
     shadow_light_data = create_light(name="EMP_ShadowPass_Light", type='SUN', angle=0)
     shadow_light_data.cycles.max_bounces = 0
 
+    light_direction = get_addon_property("light_direction")
+
     objects = bpy.data.objects
     shading_light = objects.new(name="EMP_ShadingPass_Light", object_data=shading_light_data)
-    shading_light.rotation_euler = scene.EMP_Properties.light_direction
     shadow_light = objects.new(name="EMP_ShadowPass_Light", object_data=shadow_light_data)
-    shadow_light.rotation_euler = scene.EMP_Properties.light_direction
+    shading_light.rotation_euler = light_direction
+    shadow_light.rotation_euler = light_direction
     scene.collection.objects.link(shading_light)
     scene.collection.objects.link(shadow_light)
 

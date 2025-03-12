@@ -2,7 +2,7 @@ import bpy
 from bpy.types import Operator, Panel, UIList
 
 from .operators import EMP_OT_EXPORT_PASSES
-from .utils import get_collection_property
+from .utils import get_addon_property
 
 
 def clamp(value, lower, upper):
@@ -32,7 +32,7 @@ class EMP_PT_PASS_MANAGER(Panel):
         row = layout.row()
         data = get_properties(context)
         row.template_list("EMP_PT_UL_PASSES", "", data, "render_passes", data, "active_pass_index")
-        collection = get_collection_property(context)
+        collection = get_addon_property("render_passes")
 
         try:
             active_prop = collection[data.active_pass_index]
@@ -80,7 +80,7 @@ class EMP_OT_ADD_PASS(Operator):
     bl_options = {"REGISTER", "UNDO"}
 
     def execute(self, context): 
-        collection = get_collection_property(context)
+        collection = get_addon_property("render_passes")
         prop = collection.add()
         prop.initialize_name()
 
@@ -106,7 +106,7 @@ class EMP_OT_REMOVE_PASS(Operator):
 
     def execute(self, context):
         data = get_properties(context)
-        prop = get_collection_property(context)
+        prop = get_addon_property("render_passes")
         index = data.active_pass_index
 
         prop.remove(index) 
@@ -147,7 +147,7 @@ class EMP_OT_MOVE_PASS(Operator):
     def execute(self, context): 
         data = get_properties(context)
         index = data.active_pass_index
-        my_list = get_collection_property(context)
+        my_list = get_addon_property("render_passes")
 
         neighbor = index + (-1 if self.direction == 'UP' else 1) 
         my_list.move(neighbor, index) 

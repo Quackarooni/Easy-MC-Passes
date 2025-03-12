@@ -4,8 +4,7 @@ from bpy.types import Operator
 from . import utils
 from .utils import (
     add_node, 
-    get_collection_property, 
-    get_export_path, 
+    get_addon_property,
     get_multilayer_render_path,
     link_pass_sockets,
     load_image,
@@ -27,16 +26,16 @@ class EMP_OT_EXPORT_PASSES(Operator):
 
     @classmethod
     def poll(cls, context):
-        any_passes_enabled = any(i.render for i in get_collection_property(context))
+        any_passes_enabled = any(i.render for i in get_addon_property("render_passes"))
         return any_passes_enabled
 
     def execute(self, context):
         scene = context.scene
         scenes = context.blend_data.scenes
 
-        export_path = get_export_path(context)
+        export_path = get_addon_property("export_path")
 
-        collection = get_collection_property(context)
+        collection = get_addon_property("render_passes")
         passes = tuple(utils.get_enabled_passes(collection))
         names = tuple(i.name for i in passes)
         main_passes = tuple(i.name for i in passes if i.name not in {"Shading", "Shadow", "Cavity"})
