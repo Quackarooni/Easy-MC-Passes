@@ -32,21 +32,6 @@ class EMP_PT_PASS_MANAGER(Panel):
         row = layout.row()
         data = get_properties(context)
         row.template_list("EMP_PT_UL_PASSES", "", data, "render_passes", data, "active_pass_index")
-
-        ops_col = row.column()
-
-        add_remove_col = ops_col.column(align=True)
-        props = add_remove_col.operator("my_list.new_item", icon='ADD', text="")
-        props = add_remove_col.operator("my_list.delete_item", icon='REMOVE', text="")
-
-        ops_col.separator()
-
-        up_down_col = ops_col.column(align=True)
-        props = up_down_col.operator("my_list.move_item", icon='TRIA_UP', text="")
-        props.direction = 'UP'
-        props = up_down_col.operator("my_list.move_item", icon='TRIA_DOWN', text="")
-        props.direction = 'DOWN'
-
         collection = get_collection_property(context)
 
         try:
