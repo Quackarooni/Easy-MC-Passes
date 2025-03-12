@@ -6,6 +6,7 @@ from bpy.types import (
 from bpy.props import (
     BoolProperty,
     CollectionProperty,
+    FloatVectorProperty,
     IntProperty,
     PointerProperty,
     StringProperty,
@@ -89,13 +90,17 @@ class EMPRenderPass(PropertyGroup):
         self.name = self.name
 
     def draw(self, layout):
-        pass
+        if self.name in {"Shading", "Shadow"}:
+            data = bpy.context.scene.EMP_Properties
+            col = layout.column()
+            col.prop(data, "light_direction")
 
 
 class EasyMCPassesProperties(PropertyGroup):
     render_passes : CollectionProperty(name="Render Passes", type=EMPRenderPass)
     active_pass_index : IntProperty(name="Active Index", min=0)
     export_path : StringProperty(name="Export Path", subtype='FILE_PATH')
+    light_direction : FloatVectorProperty(name="Light Direction", subtype="EULER", precision=5, step=100)
 
 
 class EasyMCPassesPreferences(AddonPreferences):

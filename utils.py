@@ -257,7 +257,9 @@ def init_shading_scene(scene):
 
     objects = bpy.data.objects
     shading_light = objects.new(name="EMP_ShadingPass_Light", object_data=shading_light_data)
+    shading_light.rotation_euler = scene.EMP_Properties.light_direction
     shadow_light = objects.new(name="EMP_ShadowPass_Light", object_data=shadow_light_data)
+    shadow_light.rotation_euler = scene.EMP_Properties.light_direction
     scene.collection.objects.link(shading_light)
     scene.collection.objects.link(shadow_light)
 
