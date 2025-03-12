@@ -89,7 +89,7 @@ class EMPRenderPass(PropertyGroup):
         self.name = self.name
 
     def draw(self, layout):
-        layout.prop(self, "name")
+        pass
 
 
 class EasyMCPassesProperties(PropertyGroup):

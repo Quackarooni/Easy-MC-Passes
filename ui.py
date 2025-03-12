@@ -66,7 +66,7 @@ class EMP_PT_UL_PASSES(UIList):
             row = layout.row(align=True)
             row.separator()
             row.prop(item, "render", text="")
-            row.prop(item, "name", text="", emboss=False)
+            row.label(text=item.name)
             
         elif self.layout_type in {'GRID'}: 
             layout.alignment = 'CENTER' 
