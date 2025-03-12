@@ -50,7 +50,7 @@ class EMP_OT_EXPORT_PASSES(Operator):
 
         tree = main_scene.node_tree
         output_node = add_node(tree, "CompositorNodeOutputFile", name="File Output (Images)", base_path=export_path, width=360, location=(500.0, 450.0))
-        exr_output_node = add_node(tree, "CompositorNodeOutputFile", name="File Output (EXR)", base_path=export_path + "MultiLayer", width=360, location=(500.0, 160.0))
+        exr_output_node = add_node(tree, "CompositorNodeOutputFile", name="File Output (EXR)", base_path=export_path + "Multilayer", width=360, location=(500.0, 160.0))
         exr_output_node.format.file_format = "OPEN_EXR_MULTILAYER"
 
         main_passes_node = add_node(tree, "CompositorNodeRLayers", name="Main Passes", location=(0.0, 450.0))
