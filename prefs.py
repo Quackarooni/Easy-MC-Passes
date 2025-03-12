@@ -28,11 +28,11 @@ def setDefaultCollectionValue():
         ("Color"),
         ("Mist"),
         ("Normal"),
-        ("Freestyle"),
+        ("Emission"),
         ("Cavity"),
         ("Shading"),
         ("Shadow"),
-        ("Emission"),
+        ("Freestyle"),
     )
 
     for default in defaults:
