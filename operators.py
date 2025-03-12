@@ -2,7 +2,22 @@ import bpy
 from bpy.types import Operator
 
 from . import utils
-from .utils import add_node, get_collection_property, get_export_path, link_pass_sockets, create_scene, create_file_outputs, init_main_passes_scene, init_cavity_scene, init_shading_scene
+from .utils import (
+    add_node, 
+    get_collection_property, 
+    get_export_path, 
+    get_multilayer_render_path,
+    link_pass_sockets,
+    load_image,
+    create_scene, 
+    create_file_outputs, 
+    init_main_passes_scene, 
+    init_cavity_scene, 
+    init_shading_scene
+    )
+
+
+render_screen = []
 
 
 class EMP_OT_EXPORT_PASSES(Operator):
@@ -35,7 +50,7 @@ class EMP_OT_EXPORT_PASSES(Operator):
 
         tree = main_scene.node_tree
         output_node = add_node(tree, "CompositorNodeOutputFile", name="File Output (Images)", base_path=export_path, width=360, location=(500.0, 450.0))
-        exr_output_node = add_node(tree, "CompositorNodeOutputFile", name="File Output (EXR)", base_path=export_path + "Multilayer", width=360, location=(500.0, 160.0))
+        exr_output_node = add_node(tree, "CompositorNodeOutputFile", name="File Output (EXR)", base_path=export_path + "MultiLayer", width=360, location=(500.0, 160.0))
         exr_output_node.format.file_format = "OPEN_EXR_MULTILAYER"
 
         main_passes_node = add_node(tree, "CompositorNodeRLayers", name="Main Passes", location=(0.0, 450.0))
@@ -62,7 +77,24 @@ class EMP_OT_EXPORT_PASSES(Operator):
             link_pass_sockets(tree, render_pass.name)
 
         bpy.ops.render.render('INVOKE_SCREEN', scene=main_scene.name)
+
+        # context.scene disappears when invoked in the handler
+        # so temporarily store it in a list that can be called by the handler
+        render_screen.append(context.screen)
+        bpy.app.handlers.render_complete.append(load_multilayer_image)
         return {'FINISHED'}
+
+
+def load_multilayer_image(*args, **kwargs):
+    filepath = get_multilayer_render_path()
+    img = load_image(name="EMP_Render Result", path=filepath, replace_existing=True)
+
+    screen = render_screen.pop(0)
+    for area in screen.areas:
+        if area.type == 'IMAGE_EDITOR':
+            area.spaces.active.image = img
+
+    bpy.app.handlers.render_complete.remove(load_multilayer_image)
 
 
 classes = (

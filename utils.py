@@ -18,6 +18,18 @@ def get_export_path(context):
     return getattr(context.scene.EMP_Properties, "export_path")
 
 
+def load_image(name, path, replace_existing=False):
+    if replace_existing:
+        images = bpy.data.images
+        if name in images:
+            images.remove(images[name])
+
+    img = bpy.data.images.load(path)
+    img.name = name
+
+    return img
+
+
 pass_link_map = {
     "Combined" : ("Main Passes", "Image"),
     "Color" : ("Main Passes", "DiffCol"),
@@ -77,6 +89,15 @@ def create_file_outputs(node, outputs):
 
     for output in outputs:
         slots.new(output)
+
+
+def get_multilayer_render_path():
+    scene = bpy.data.scenes["EMP_Export_Passes"]
+    output_node = scene.node_tree.nodes["File Output (EXR)"]
+    scene.render.filepath = output_node.base_path
+    scene.render.image_settings.file_format = "OPEN_EXR_MULTILAYER"
+
+    return scene.render.frame_path(frame=scene.frame_current)
 
 
 def create_light(name, type, *_, **props):
