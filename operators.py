@@ -98,7 +98,6 @@ class EMP_OT_EXPORT_PASSES(Operator):
         for mask in (*object_masks, *material_masks):
             link_mask_sockets(tree, mask)
 
-        return {'FINISHED'}
         bpy.ops.render.render('INVOKE_SCREEN', scene=main_scene.name)
 
         # context.scene disappears when invoked in the handler
