@@ -98,6 +98,14 @@ class EMPMaskLayer(PropertyGroup):
     def set_unique_name(self, context):
         self["name"] = self.make_name_unique(self.name)
 
+    def clear_unused_selection(self, context):
+        if self.selection_type == "OBJECT":
+            self.property_unset("selection_material")
+        elif self.selection_type:
+            self.property_unset("selection_object")
+        else:
+            raise ValueError()
+
     name: StringProperty(name="Name", default="Mask", update=set_unique_name)
     render: BoolProperty(name="Render", default=True)
     invert: BoolProperty(name="Invert Mask", default=False, options=set())
@@ -109,7 +117,11 @@ class EMPMaskLayer(PropertyGroup):
             ("OBJECT", "Object", "", "OBJECT_DATA", 0),
             ("MATERIAL", "Material", "", "MATERIAL_DATA", 1),
             ),
+        update=clear_unused_selection
         )
+
+    selection_object : PointerProperty(name="Selection", type=bpy.types.Object)
+    selection_material : PointerProperty(name="Selection", type=bpy.types.Material)
 
     def initialize_name(self):
         self.name = self.name
@@ -120,6 +132,13 @@ class EMPMaskLayer(PropertyGroup):
 
         ui_draw_enum_prop(layout, self, "selection_type")
 
+        if self.selection_type == "OBJECT":
+            ui_draw_enum_prop(layout, self, "selection_object")
+        elif self.selection_type:
+            ui_draw_enum_prop(layout, self, "selection_material")
+        else:
+            raise ValueError()
+    
 
 class EasyMCPassesProperties(PropertyGroup):
     def get_default_export_path(self):
