@@ -5,6 +5,7 @@ from . import utils
 from .utils import (
     add_node, 
     create_matte_masks,
+    clear_helper_scenes,
     get_addon_property,
     get_mask_layers,
     get_multilayer_render_path,
@@ -38,7 +39,6 @@ class EMP_OT_EXPORT_PASSES(Operator):
 
     def execute(self, context):
         scene = context.scene
-        scenes = context.blend_data.scenes
 
         export_path = get_addon_property("export_path")
 
@@ -49,12 +49,9 @@ class EMP_OT_EXPORT_PASSES(Operator):
         
         object_masks = tuple(get_mask_layers(selection_type="OBJECT"))
         material_masks = tuple(get_mask_layers(selection_type="MATERIAL"))
+        
+        clear_helper_scenes()
 
-        for scene_name in ("EMP_Export_Passes", "EMP_Workbench_Cavity", "EMP_Shading_and_Shadows", "EMP_Cryptomatte"):
-            if scene_name in scenes:
-                scenes.remove(scenes[scene_name])
-
-        scenes = context.blend_data.scenes
         main_scene = create_scene(scene, "EMP_Export_Passes", clear_tree=True)
         init_main_passes_scene(main_scene, passes=main_passes)
 
@@ -115,6 +112,7 @@ def load_multilayer_image(*args, **kwargs):
             area.spaces.active.image = img
 
     bpy.app.handlers.render_complete.remove(load_multilayer_image)
+    bpy.app.timers.register(clear_helper_scenes)
 
 
 classes = (
