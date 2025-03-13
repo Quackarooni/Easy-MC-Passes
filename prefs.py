@@ -99,12 +99,14 @@ class EMPMaskLayer(PropertyGroup):
 
     name: StringProperty(name="Name", default="Mask", update=set_unique_name)
     render: BoolProperty(name="Render", default=True)
+    invert: BoolProperty(name="Invert Mask", default=False, options=set())
 
     def initialize_name(self):
         self.name = self.name
 
     def draw(self, layout):
-        pass
+        layout.prop(self, "name")
+        layout.prop(self, "invert")
 
 
 class EasyMCPassesProperties(PropertyGroup):

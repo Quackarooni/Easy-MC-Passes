@@ -113,6 +113,9 @@ class EMP_PT_UL_MASKS(UIList):
             row.separator()
             row.prop(item, "render", text="")
             row.prop(item, "name", text="", emboss=False)
+
+            icon = "CLIPUV_DEHLT" if item.invert else "CLIPUV_HLT"
+            row.prop(item, "invert", text="", emboss=False, icon=icon)
             
         elif self.layout_type in {'GRID'}: 
             layout.alignment = 'CENTER' 
