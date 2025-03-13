@@ -33,6 +33,13 @@ class EMP_PT_PASS_MANAGER(Panel):
         data = get_properties(context)
         row.template_list("EMP_PT_UL_PASSES", "", data, "render_passes", data, "active_pass_index")
 
+        try:
+            collection =  data.render_passes
+            active_prop = collection[data.active_pass_index]
+            active_prop.draw(layout)
+        except IndexError:
+            pass
+
 
 class EMP_PT_EXPORT_PASSES(Panel):
     bl_label = "Export Passes"
