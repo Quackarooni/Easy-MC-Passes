@@ -61,6 +61,12 @@ def get_enabled_passes(collection):
             yield render_pass
 
 
+def get_mask_layers(selection_type):
+    for layer in get_addon_property("mask_layers"):
+        if layer.render and layer.selection_type == selection_type:
+            yield layer
+
+
 def add_node(tree, node_type, *_, **props):
     node = tree.nodes.new(node_type)
 
@@ -107,6 +113,31 @@ def create_light(name, type, *_, **props):
         setattr(light, prop, value)
 
     return light
+
+
+def create_matte_masks(scene, tree, masks, mask_type, start_location):
+    view_layer = scene.view_layers[0]
+    
+    for i, mask in enumerate(masks):
+        location = (start_location[0], start_location[1] - i*45)
+
+        node = add_node(tree, "CompositorNodeCryptomatteV2",
+            name=mask.name, label=mask.name, scene=scene, location=location)
+        node.hide = True
+
+        if mask.invert:
+            invert_node = add_node(tree, "CompositorNodeMath", label="Invert", operation="SUBTRACT", location=location)
+            invert_node.hide = True
+            invert_node.location.x += 260.0
+            invert_node.inputs[0].default_value = 1.0
+            tree.links.new(node.outputs["Matte"], invert_node.inputs[1])
+
+        if mask_type == "OBJECT":
+            node.layer_name = f"{view_layer.name}.CryptoObject"
+        elif mask_type == "MATERIAL":
+            node.layer_name = f"{view_layer.name}.CryptoMaterial"
+        else:
+            raise ValueError
 
 
 def set_standard_view_transform(scene):
@@ -278,6 +309,21 @@ def init_shading_scene(scene):
 
     depsgraph = bpy.context.evaluated_depsgraph_get() 
     depsgraph.update()
+
+
+def init_cryptomatte_scene(scene, object_masks, material_masks):
+    render = scene.render
+    view_layer = scene.view_layers[0]
+
+    clear_passes(render, view_layer)
+
+    if len(object_masks) > 0:
+        view_layer.use_pass_cryptomatte_object = True
+
+    if len(material_masks) > 0:
+        view_layer.use_pass_cryptomatte_material = True
+
+    set_standard_view_transform(scene)
 
 
 def get_prop_name(data, prop_name):
