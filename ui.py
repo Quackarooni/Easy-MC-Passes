@@ -1,7 +1,7 @@
 import bpy
 from bpy.types import Operator, Panel, UIList
 
-from .operators import EMP_OT_EXPORT_PASSES
+from .operators import EMP_OT_EXPORT_PASSES, EMP_OT_OPEN_FILE_EXPLORER
 from .utils import get_addon_property
 
 
@@ -50,6 +50,7 @@ class EMP_PT_EXPORT_PASSES(Panel):
         
         layout.prop(data, "export_path", text="", placeholder="Export Path")
         layout.operator(EMP_OT_EXPORT_PASSES.bl_idname)
+        layout.operator(EMP_OT_OPEN_FILE_EXPLORER.bl_idname, icon="FOLDER_REDIRECT")
         
 
 class EMP_PT_UL_PASSES(UIList):

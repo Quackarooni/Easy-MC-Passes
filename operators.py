@@ -1,6 +1,9 @@
 import bpy
 from bpy.types import Operator
 
+import os
+from pathlib import Path
+
 from . import utils
 from .utils import (
     add_node, 
@@ -115,8 +118,26 @@ def load_multilayer_image(*args, **kwargs):
     bpy.app.timers.register(clear_helper_scenes)
 
 
+class EMP_OT_OPEN_FILE_EXPLORER(Operator):
+    bl_idname = "render.emp_open_file_explorer"
+    bl_label = "Open in File Explorer"
+    bl_description = "Open the specified export path in your system's file explorer"
+    bl_options = {'REGISTER', 'INTERNAL'} 
+
+    @classmethod
+    def poll(cls, context):
+        export_path = bpy.path.abspath(get_addon_property("export_path"))
+        return Path(export_path).exists()
+
+    def execute(self, context):
+        export_path = bpy.path.abspath(get_addon_property("export_path"))
+        os.startfile(export_path)
+        return {'FINISHED'}
+
+
 classes = (
     EMP_OT_EXPORT_PASSES,
+    EMP_OT_OPEN_FILE_EXPLORER,
 )
 
 
