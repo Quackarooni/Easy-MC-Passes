@@ -17,12 +17,18 @@ def get_addon_property(prop_name, scene=None):
     return getattr(scene.EMP_Properties, prop_name)
 
 
-def clear_helper_scenes():
+def clear_helper_datablocks():
     scenes = bpy.data.scenes
 
     for scene_name in ("EMP_Export_Passes", "EMP_Workbench_Cavity", "EMP_Shading_and_Shadows", "EMP_Cryptomatte"):
         if scene_name in scenes:
             scenes.remove(scenes[scene_name])
+
+    materials = bpy.data.materials    
+
+    for mat_name in ("EMP_BlankMaterial",):
+        if mat_name in materials:
+            materials.remove(materials[mat_name])
 
 
 def load_image(name, path, replace_existing=False):
@@ -335,7 +341,7 @@ def init_shading_scene(scene):
 
     shading_light.lightgroup = shading_light_group.name
     shadow_light.lightgroup = shadow_light_group.name
-    
+
     blank_material = create_blank_material("EMP_BlankMaterial")
     view_layer.material_override = blank_material
 
