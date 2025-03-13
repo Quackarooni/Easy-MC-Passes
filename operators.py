@@ -26,6 +26,7 @@ from .utils import (
 
 
 render_screen = []
+multilayer_export_path = ""
 
 
 class EMP_OT_EXPORT_PASSES(Operator):
@@ -101,13 +102,16 @@ class EMP_OT_EXPORT_PASSES(Operator):
         # context.scene disappears when invoked in the handler
         # so temporarily store it in a list that can be called by the handler
         render_screen.append(context.screen)
+        
+        global multilayer_export_path    
+        multilayer_export_path = get_multilayer_render_path()
+
         bpy.app.handlers.render_complete.append(load_multilayer_image)
         return {'FINISHED'}
 
 
 def load_multilayer_image(*args, **kwargs):
-    filepath = get_multilayer_render_path()
-    img = load_image(name="EMP_Render Result", path=filepath, replace_existing=True)
+    img = load_image(name="EMP_Render Result", path=multilayer_export_path, replace_existing=True)
 
     screen = render_screen.pop(0)
     for area in screen.areas:
