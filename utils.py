@@ -278,3 +278,14 @@ def init_shading_scene(scene):
 
     depsgraph = bpy.context.evaluated_depsgraph_get() 
     depsgraph.update()
+
+
+def get_prop_name(data, prop_name):
+    return data.__annotations__[prop_name].keywords["name"] 
+
+
+def ui_draw_enum_prop(layout, data, prop_name):
+    col = layout.column()
+    col.label(text=f"{get_prop_name(data, prop_name)}:")
+    col.prop(data, prop_name, text="")
+

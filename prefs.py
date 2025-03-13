@@ -6,6 +6,7 @@ from bpy.types import (
 from bpy.props import (
     BoolProperty,
     CollectionProperty,
+    EnumProperty,
     FloatVectorProperty,
     IntProperty,
     PointerProperty,
@@ -16,7 +17,7 @@ import re
 from collections import Counter
 
 from .keymaps import keymap_layout
-from .utils import fetch_user_preferences, get_addon_property
+from .utils import fetch_user_preferences, get_addon_property, ui_draw_enum_prop
 
 from bpy.app.handlers import persistent
 
@@ -101,12 +102,23 @@ class EMPMaskLayer(PropertyGroup):
     render: BoolProperty(name="Render", default=True)
     invert: BoolProperty(name="Invert Mask", default=False, options=set())
 
+    selection_type : EnumProperty(
+        name="Selection Type",
+        default="OBJECT",
+        items=(
+            ("OBJECT", "Object", "", "OBJECT_DATA", 0),
+            ("MATERIAL", "Material", "", "MATERIAL_DATA", 1),
+            ),
+        )
+
     def initialize_name(self):
         self.name = self.name
 
     def draw(self, layout):
         layout.prop(self, "name")
         layout.prop(self, "invert")
+
+        ui_draw_enum_prop(layout, self, "selection_type")
 
 
 class EasyMCPassesProperties(PropertyGroup):
