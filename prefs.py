@@ -96,6 +96,57 @@ class EMPRenderPass(PropertyGroup):
             col.prop(data, "light_direction")
 
 
+class EMPMaskLayer(PropertyGroup):
+    def parent_collection(self):
+        # this gets the collection that the element is in
+        path = self.path_from_id()
+        match = re.match('(.*)\[\d*\]', path)
+        parent = self.id_data
+        try:
+            coll_path = match.group(1)
+        except AttributeError:
+            raise TypeError("Property not element in a collection.") 
+        else:
+            return parent.path_resolve(coll_path)
+
+    def __repr__(self):
+        return f"bpy.data.scenes['{bpy.context.scene.name}'].{self.__class__.__name__}['{self.name}']"
+
+    @staticmethod
+    def unduped_name(name):
+        unduped_name, *_ = re.split("\.\d+$", name)
+        return unduped_name
+
+    def make_name_unique(self, name):
+        collection = self.parent_collection()
+        counter = 1
+        names = set(i.name for i in collection)
+
+        stem = self.unduped_name(name)
+
+        counts = Counter(i.name for i in collection)
+        should_change_name = (counts[name] > 1)
+        
+        if should_change_name:
+            while name in names:
+                name = f"{stem}.{counter:03d}"
+                counter += 1
+
+        return name
+
+    def set_unique_name(self, context):
+        self["name"] = self.make_name_unique(self.name)
+
+    name: StringProperty(name="Name", default="Mask", update=set_unique_name)
+    render: BoolProperty(name="Render", default=True)
+
+    def initialize_name(self):
+        self.name = self.name
+
+    def draw(self, layout):
+        pass
+
+
 class EasyMCPassesProperties(PropertyGroup):
     def get_default_export_path(self):
         export_path = self.get("export_path", fetch_user_preferences("default_export_path"))
@@ -107,6 +158,10 @@ class EasyMCPassesProperties(PropertyGroup):
     
     render_passes : CollectionProperty(name="Render Passes", type=EMPRenderPass)
     active_pass_index : IntProperty(name="Active Index", min=0)
+    
+    mask_layers : CollectionProperty(name="Mask", type=EMPMaskLayer)
+    active_mask_index : IntProperty(name="Active Index", min=0)
+
     export_path : StringProperty(name="Export Path", subtype='FILE_PATH', get=get_default_export_path, set=set_default_export_path)
     light_direction : FloatVectorProperty(name="Light Direction", subtype="EULER", precision=5, step=100)
 
@@ -133,6 +188,7 @@ def onFileLoaded(dummy):
 
 classes = (
     EMPRenderPass,
+    EMPMaskLayer,
     EasyMCPassesProperties,
     EasyMCPassesPreferences,
     )
