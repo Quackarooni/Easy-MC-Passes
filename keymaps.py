@@ -6,7 +6,7 @@ from .operators import (
 
 keymap_structure = KeymapStructure(
     [
-        KeymapItemDef(EMP_OT_EXPORT_PASSES.bl_idname, keymap_name="Node Editor", space_type="NODE_EDITOR"),
+        KeymapItemDef(EMP_OT_EXPORT_PASSES.bl_idname, keymap_name="3D View", space_type="VIEW_3D"),
     ]
 )
 
