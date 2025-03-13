@@ -52,7 +52,7 @@ class EMPRenderPass(PropertyGroup):
 
     @property
     def exr_output_name(self):
-        return f'Passes.{self.name.replace(".", "_")}'
+        return f'Image.{self.name.replace(".", "_")}'
 
     def draw(self, layout):
         if self.name in {"Shading", "Shadow"}:
