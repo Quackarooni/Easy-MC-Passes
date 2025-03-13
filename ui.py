@@ -32,13 +32,6 @@ class EMP_PT_PASS_MANAGER(Panel):
         row = layout.row()
         data = get_properties(context)
         row.template_list("EMP_PT_UL_PASSES", "", data, "render_passes", data, "active_pass_index")
-        collection = get_addon_property("mask_layers")
-
-        try:
-            active_prop = collection[data.active_pass_index]
-            active_prop.draw(layout)
-        except IndexError:
-            pass
 
 
 class EMP_PT_EXPORT_PASSES(Panel):
