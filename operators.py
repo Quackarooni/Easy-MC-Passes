@@ -30,7 +30,9 @@ class EMP_OT_EXPORT_PASSES(Operator):
 
     @classmethod
     def poll(cls, context):
-        any_passes_enabled = any(i.render for i in get_addon_property("render_passes"))
+        outputs = (*get_addon_property("render_passes"), *get_addon_property("mask_layers"))
+
+        any_passes_enabled = any(i.render for i in outputs)
         return any_passes_enabled
 
     def execute(self, context):
