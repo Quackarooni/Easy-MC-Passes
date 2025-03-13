@@ -42,24 +42,23 @@ pass_link_map = {
 }
 
 
-def link_pass_sockets(tree, pass_name):
+def link_pass_sockets(tree, render_pass):
     nodes = tree.nodes
     output_node1 = nodes["File Output (Images)"]
     output_node2 = nodes["File Output (EXR)"]
-    output_soc = pass_name
+    pass_name = render_pass.name
 
     input_node, input_soc = pass_link_map[pass_name]
     input_node = nodes[input_node]
 
-    tree.links.new(input_node.outputs[input_soc], output_node1.inputs[output_soc])
-    tree.links.new(input_node.outputs[input_soc], output_node2.inputs[output_soc])
+    tree.links.new(input_node.outputs[input_soc], output_node1.inputs[pass_name])
+    tree.links.new(input_node.outputs[input_soc], output_node2.inputs[render_pass.exr_output_name])
 
 
 def link_mask_sockets(tree, mask):
     nodes = tree.nodes
     output_node1 = nodes["File Output (Images)"]
     output_node2 = nodes["File Output (EXR)"]
-    output_soc = mask.name
 
     if not mask.invert:
         input_node = tree.nodes[mask.name]
@@ -68,8 +67,8 @@ def link_mask_sockets(tree, mask):
         input_node = tree.nodes[f"Invert_{mask.name}"]
         input_soc = 0
 
-    tree.links.new(input_node.outputs[input_soc], output_node1.inputs[output_soc])
-    tree.links.new(input_node.outputs[input_soc], output_node2.inputs[output_soc])
+    tree.links.new(input_node.outputs[input_soc], output_node1.inputs[mask.name])
+    tree.links.new(input_node.outputs[input_soc], output_node2.inputs[mask.exr_output_name])
 
 
 def get_enabled_passes(collection):
@@ -110,7 +109,15 @@ def create_file_outputs(node, outputs):
     slots.clear()
 
     for output in outputs:
-        slots.new(output)
+        slots.new(output.name)
+
+
+def create_exr_outputs(node, outputs):
+    slots = node.file_slots
+    slots.clear()
+
+    for output in outputs:
+        slots.new(output.exr_output_name)
 
 
 def get_multilayer_render_path():
@@ -151,8 +158,10 @@ def create_matte_masks(scene, tree, masks, mask_type, start_location):
 
         if mask_type == "OBJECT":
             node.layer_name = f"{view_layer.name}.CryptoObject"
+            node.matte_id = mask.selection_object.name
         elif mask_type == "MATERIAL":
             node.layer_name = f"{view_layer.name}.CryptoMaterial"
+            node.matte_id = mask.selection_material.name
         else:
             raise ValueError
 

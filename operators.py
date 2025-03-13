@@ -13,6 +13,7 @@ from .utils import (
     load_image,
     create_scene, 
     create_file_outputs, 
+    create_exr_outputs, 
     init_main_passes_scene, 
     init_cavity_scene, 
     init_cryptomatte_scene,
@@ -85,15 +86,12 @@ class EMP_OT_EXPORT_PASSES(Operator):
             create_matte_masks(crpytomatte_scene, tree, object_masks, mask_type="OBJECT", start_location=(0.0, -150.0))
             create_matte_masks(crpytomatte_scene, tree, material_masks, mask_type="MATERIAL",start_location=(500.0, -150.0))
 
-        object_mask_names = (m.name for m in object_masks)
-        material_mask_names = (m.name for m in material_masks)
-        output_names = (*names, *object_mask_names, *material_mask_names)
-
-        create_file_outputs(output_node, outputs=output_names)
-        create_file_outputs(exr_output_node, outputs=output_names)
+        outputs = (*passes, *object_masks, *material_masks)
+        create_file_outputs(output_node, outputs)
+        create_exr_outputs(exr_output_node, outputs)
 
         for render_pass in passes:
-            link_pass_sockets(tree, render_pass.name)
+            link_pass_sockets(tree, render_pass)
         
         for mask in (*object_masks, *material_masks):
             link_mask_sockets(tree, mask)

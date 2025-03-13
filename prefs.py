@@ -50,6 +50,10 @@ class EMPRenderPass(PropertyGroup):
     name: StringProperty(name="Name", default="Default")
     render: BoolProperty(name="Render", default=True)
 
+    @property
+    def exr_output_name(self):
+        return f'Passes.{self.name.replace(".", "_")}'
+
     def draw(self, layout):
         if self.name in {"Shading", "Shadow"}:
             data = bpy.context.scene.EMP_Properties
@@ -125,6 +129,10 @@ class EMPMaskLayer(PropertyGroup):
 
     def initialize_name(self):
         self.name = self.name
+
+    @property
+    def exr_output_name(self):
+        return f'Masks.{self.name.replace(".", "_")}'
 
     def draw(self, layout):
         layout.prop(self, "name")
