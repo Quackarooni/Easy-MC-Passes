@@ -55,6 +55,23 @@ def link_pass_sockets(tree, pass_name):
     tree.links.new(input_node.outputs[input_soc], output_node2.inputs[output_soc])
 
 
+def link_mask_sockets(tree, mask):
+    nodes = tree.nodes
+    output_node1 = nodes["File Output (Images)"]
+    output_node2 = nodes["File Output (EXR)"]
+    output_soc = mask.name
+
+    if not mask.invert:
+        input_node = tree.nodes[mask.name]
+        input_soc = "Matte"
+    else:
+        input_node = tree.nodes[f"Invert_{mask.name}"]
+        input_soc = 0
+
+    tree.links.new(input_node.outputs[input_soc], output_node1.inputs[output_soc])
+    tree.links.new(input_node.outputs[input_soc], output_node2.inputs[output_soc])
+
+
 def get_enabled_passes(collection):
     for render_pass in collection:
         if render_pass.render:
@@ -126,7 +143,7 @@ def create_matte_masks(scene, tree, masks, mask_type, start_location):
         node.hide = True
 
         if mask.invert:
-            invert_node = add_node(tree, "CompositorNodeMath", label="Invert", operation="SUBTRACT", location=location)
+            invert_node = add_node(tree, "CompositorNodeMath", name=f"Invert_{mask.name}", label="Invert", operation="SUBTRACT", location=location)
             invert_node.hide = True
             invert_node.location.x += 260.0
             invert_node.inputs[0].default_value = 1.0
