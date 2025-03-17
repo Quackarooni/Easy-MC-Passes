@@ -48,7 +48,7 @@ class EMPRenderPass(PropertyGroup):
         return f"bpy.data.scenes['{bpy.context.scene.name}'].{self.__class__.__name__}['{self.name}']"
 
     name: StringProperty(name="Name", default="Default")
-    render: BoolProperty(name="Render", default=True)
+    render: BoolProperty(name="Render", default=True, options=set())
 
     @property
     def exr_output_name(self):
@@ -116,7 +116,7 @@ class EMPMaskLayer(PropertyGroup):
             raise ValueError()
 
     name: StringProperty(name="Name", default="Mask", update=set_unique_name)
-    render: BoolProperty(name="Render", default=True)
+    render: BoolProperty(name="Render", default=True, options=set())
     invert: BoolProperty(name="Invert Mask", default=False, options=set())
 
     selection_type : EnumProperty(
