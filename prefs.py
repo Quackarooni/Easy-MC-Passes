@@ -105,7 +105,12 @@ class EMPMaskLayer(PropertyGroup):
     def clear_unused_selection(self, context):
         if self.selection_type == "OBJECT":
             self.property_unset("selection_material")
-        elif self.selection_type:
+            self.property_unset("selection_collection")
+        elif self.selection_type == "MATERIAL":
+            self.property_unset("selection_object")
+            self.property_unset("selection_collection")
+        elif self.selection_type == "COLLECTION":
+            self.property_unset("selection_material")
             self.property_unset("selection_object")
         else:
             raise ValueError()
@@ -120,12 +125,14 @@ class EMPMaskLayer(PropertyGroup):
         items=(
             ("OBJECT", "Object", "", "OBJECT_DATA", 0),
             ("MATERIAL", "Material", "", "MATERIAL_DATA", 1),
+            ("COLLECTION", "Collection", "", "OUTLINER_COLLECTION", 2),
             ),
         update=clear_unused_selection
         )
 
     selection_object : PointerProperty(name="Selection", type=bpy.types.Object)
     selection_material : PointerProperty(name="Selection", type=bpy.types.Material)
+    selection_collection : PointerProperty(name="Selection", type=bpy.types.Collection)
 
     def initialize_name(self):
         self.name = self.name
@@ -142,8 +149,10 @@ class EMPMaskLayer(PropertyGroup):
 
         if self.selection_type == "OBJECT":
             ui_draw_enum_prop(layout, self, "selection_object")
-        elif self.selection_type:
+        elif self.selection_type == "MATERIAL":
             ui_draw_enum_prop(layout, self, "selection_material")
+        elif self.selection_type == "COLLECTION":
+            ui_draw_enum_prop(layout, self, "selection_collection")
         else:
             raise ValueError()
     
