@@ -124,6 +124,9 @@ class EMP_PT_UL_MASKS(UIList):
 
             icon = "CLIPUV_DEHLT" if item.invert else "CLIPUV_HLT"
             row.prop(item, "invert", text="", emboss=False, icon=icon)
+
+            icon = "KEY_CONTROL_FILLED" if item.solo else "KEY_CONTROL"
+            row.prop(item, "solo", text="", emboss=False, icon=icon)
             
         elif self.layout_type in {'GRID'}: 
             layout.alignment = 'CENTER' 

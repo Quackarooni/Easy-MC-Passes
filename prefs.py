@@ -118,6 +118,7 @@ class EMPMaskLayer(PropertyGroup):
     name: StringProperty(name="Name", default="Mask", update=set_unique_name)
     render: BoolProperty(name="Render", default=True, options=set())
     invert: BoolProperty(name="Invert Mask", default=False, options=set())
+    solo: BoolProperty(name="Solo", default=False, options=set())
 
     selection_type : EnumProperty(
         name="Selection Type",
@@ -143,8 +144,6 @@ class EMPMaskLayer(PropertyGroup):
 
     def draw(self, layout):
         layout.prop(self, "name")
-        layout.prop(self, "invert")
-
         ui_draw_enum_prop(layout, self, "selection_type")
 
         if self.selection_type == "OBJECT":
@@ -155,7 +154,11 @@ class EMPMaskLayer(PropertyGroup):
             ui_draw_enum_prop(layout, self, "selection_collection")
         else:
             raise ValueError()
-    
+
+        col = layout.column()
+        col.prop(self, "invert")
+        col.prop(self, "solo")
+
 
 class EasyMCPassesProperties(PropertyGroup):
     def get_default_export_path(self):
