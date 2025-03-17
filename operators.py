@@ -48,12 +48,10 @@ class EMP_OT_EXPORT_PASSES(Operator):
 
         collection = get_addon_property("render_passes")
         passes = tuple(utils.get_enabled_passes(collection))
+        masks = tuple(get_mask_layers())
+
         names = tuple(i.name for i in passes)
         main_passes = tuple(i.name for i in passes if i.name not in {"Shading", "Shadow", "Cavity"})
-        
-        object_masks = tuple(get_mask_layers(selection_type="OBJECT"))
-        material_masks = tuple(get_mask_layers(selection_type="MATERIAL"))
-        collection_masks = tuple(get_mask_layers(selection_type="COLLECTION"))
         
         clear_helper_datablocks()
 
@@ -82,21 +80,19 @@ class EMP_OT_EXPORT_PASSES(Operator):
             cavity_pass_node = add_node(tree, "CompositorNodeRLayers", name="Cavity Pass", location=(0.0, -60.0))
             cavity_pass_node.scene = cavity_scene
 
-        if len((*object_masks, *material_masks, collection_masks)) > 0:
+        if len(masks) > 0:
             cryptomatte_scene = create_scene(scene, "EMP_Cryptomatte", clear_tree=True)
-            init_cryptomatte_scene(cryptomatte_scene, object_masks, material_masks, collection_masks)
-            create_matte_masks(cryptomatte_scene, tree, object_masks, mask_type="OBJECT", start_location=(-1300.0, -150.0))
-            create_matte_masks(cryptomatte_scene, tree, material_masks, mask_type="MATERIAL", start_location=(-800.0, -150.0))
-            create_matte_masks(cryptomatte_scene, tree, collection_masks, mask_type="COLLECTION", start_location=(-300.0, -150.0))
+            init_cryptomatte_scene(cryptomatte_scene)
+            create_matte_masks(cryptomatte_scene, tree, masks, start_location=(-160.0, -150.0))
 
-        outputs = (*passes, *object_masks, *material_masks, *collection_masks)
+        outputs = (*passes, *masks)
         create_file_outputs(output_node, outputs)
         create_exr_outputs(exr_output_node, outputs)
 
         for render_pass in passes:
             link_pass_sockets(tree, render_pass)
         
-        for mask in (*object_masks, *material_masks, *collection_masks):
+        for mask in masks:
             link_mask_sockets(tree, mask)
 
         bpy.ops.render.render('INVOKE_SCREEN', scene=main_scene.name)

@@ -91,10 +91,15 @@ def get_enabled_passes(collection):
             yield render_pass
 
 
-def get_mask_layers(selection_type):
-    for layer in get_addon_property("mask_layers"):
-        if layer.render and layer.selection_type == selection_type:
-            yield layer
+def get_mask_layers(selection_type=None):
+    if selection_type is None:
+        for layer in get_addon_property("mask_layers"):
+            if layer.render:
+                yield layer
+    else:
+        for layer in get_addon_property("mask_layers"):
+            if layer.render and layer.selection_type == selection_type:
+                yield layer
 
 
 def add_node(tree, node_type, *_, **props):
@@ -153,7 +158,7 @@ def create_light(name, type, *_, **props):
     return light
 
 
-def create_matte_masks(scene, tree, masks, mask_type, start_location):
+def create_matte_masks(scene, tree, masks, start_location):
     view_layer = scene.view_layers[0]
     
     for i, mask in enumerate(masks):
@@ -170,13 +175,14 @@ def create_matte_masks(scene, tree, masks, mask_type, start_location):
             invert_node.inputs[0].default_value = 1.0
             tree.links.new(node.outputs["Matte"], invert_node.inputs[1])
 
-        if mask_type == "OBJECT":
+        selection_type = mask.selection_type
+        if selection_type == "OBJECT":
             node.layer_name = f"{view_layer.name}.CryptoObject"
             node.matte_id = mask.selection_object.name
-        elif mask_type == "MATERIAL":
+        elif selection_type == "MATERIAL":
             node.layer_name = f"{view_layer.name}.CryptoMaterial"
             node.matte_id = mask.selection_material.name
-        elif mask_type == "COLLECTION":
+        elif selection_type == "COLLECTION":
             node.layer_name = f"{view_layer.name}.CryptoObject"
             node.matte_id = ", ".join((o.name for o in mask.selection_collection.all_objects))
         else:
@@ -354,10 +360,14 @@ def init_shading_scene(scene):
     depsgraph.update()
 
 
-def init_cryptomatte_scene(scene, object_masks, material_masks, collection_masks):
+def init_cryptomatte_scene(scene):
     render = scene.render
     view_layer = scene.view_layers[0]
 
+    object_masks = tuple(get_mask_layers(selection_type="OBJECT"))
+    material_masks = tuple(get_mask_layers(selection_type="MATERIAL"))
+    collection_masks = tuple(get_mask_layers(selection_type="COLLECTION"))
+    
     clear_passes(render, view_layer)
 
     if len((*object_masks, *collection_masks)) > 0:
