@@ -117,7 +117,7 @@ def load_multilayer_image(*args, **kwargs):
             area.spaces.active.image = img
 
     bpy.app.handlers.render_complete.remove(load_multilayer_image)
-    bpy.app.timers.register(clear_helper_datablocks)
+    bpy.app.timers.register(clear_helper_datablocks, first_interval=0.1)
 
 
 class EMP_OT_OPEN_FILE_EXPLORER(Operator):
