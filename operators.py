@@ -37,9 +37,11 @@ class EMP_OT_EXPORT_PASSES(Operator):
     @classmethod
     def poll(cls, context):
         outputs = (*get_addon_property("render_passes"), *get_addon_property("mask_layers"))
-
         any_passes_enabled = any(i.render for i in outputs)
-        return any_passes_enabled
+
+        is_engine_valid = context.scene.render.engine in {'BLENDER_EEVEE_NEXT', 'CYCLES'}
+
+        return any_passes_enabled and is_engine_valid
 
     def execute(self, context):
         scene = context.scene
