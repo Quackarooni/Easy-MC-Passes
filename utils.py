@@ -176,6 +176,9 @@ def create_matte_masks(scene, tree, masks, mask_type, start_location):
         elif mask_type == "MATERIAL":
             node.layer_name = f"{view_layer.name}.CryptoMaterial"
             node.matte_id = mask.selection_material.name
+        elif mask_type == "COLLECTION":
+            node.layer_name = f"{view_layer.name}.CryptoObject"
+            node.matte_id = ", ".join((o.name for o in mask.selection_collection.all_objects))
         else:
             raise ValueError
 
@@ -351,13 +354,13 @@ def init_shading_scene(scene):
     depsgraph.update()
 
 
-def init_cryptomatte_scene(scene, object_masks, material_masks):
+def init_cryptomatte_scene(scene, object_masks, material_masks, collection_masks):
     render = scene.render
     view_layer = scene.view_layers[0]
 
     clear_passes(render, view_layer)
 
-    if len(object_masks) > 0:
+    if len((*object_masks, *collection_masks)) > 0:
         view_layer.use_pass_cryptomatte_object = True
 
     if len(material_masks) > 0:
