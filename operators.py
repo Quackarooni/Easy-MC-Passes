@@ -82,10 +82,10 @@ class EMP_OT_EXPORT_PASSES(Operator):
             cavity_pass_node.scene = cavity_scene
 
         if len((*object_masks, *material_masks)) > 0:
-            crpytomatte_scene = create_scene(scene, "EMP_Cryptomatte", clear_tree=True)
-            init_cryptomatte_scene(crpytomatte_scene, object_masks, material_masks)
-            create_matte_masks(crpytomatte_scene, tree, object_masks, mask_type="OBJECT", start_location=(0.0, -150.0))
-            create_matte_masks(crpytomatte_scene, tree, material_masks, mask_type="MATERIAL",start_location=(500.0, -150.0))
+            cryptomatte_scene = create_scene(scene, "EMP_Cryptomatte", clear_tree=True)
+            init_cryptomatte_scene(cryptomatte_scene, object_masks, material_masks, collection_masks)
+            create_matte_masks(cryptomatte_scene, tree, object_masks, mask_type="OBJECT", start_location=(-1300.0, -150.0))
+            create_matte_masks(cryptomatte_scene, tree, material_masks, mask_type="MATERIAL", start_location=(-800.0, -150.0))
 
         outputs = (*passes, *object_masks, *material_masks)
         create_file_outputs(output_node, outputs)
