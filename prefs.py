@@ -141,6 +141,37 @@ class EMPMaskLayer(PropertyGroup):
     @property
     def exr_output_name(self):
         return f'Masks.{self.name.replace(".", "_")}'
+    
+    @property
+    def view_layer_name(self):
+        if self.solo:
+            return f'EMP_Solo_{self.name.replace(".", "_")}'
+        else:
+            return bpy.context.scene.view_layers[0].name
+
+    @property
+    def solo_objects(self):
+        if self.selection_type == "OBJECT":
+            yield self.selection_object
+        elif self.selection_type == "MATERIAL":
+            material = self.selection_material
+            user_map = bpy.data.user_map(subset=(material,))
+            material_users = user_map[material]
+            for obj in bpy.context.scene.collection.all_objects:
+                if obj.data in material_users:
+                    yield obj
+
+        elif self.selection_type == "COLLECTION":
+            for obj in self.selection_collection.all_objects:
+                yield obj
+
+    def enable_pass(self, view_layer):
+        if self.selection_type in {"OBJECT", "COLLECTION"}:
+            view_layer.use_pass_cryptomatte_object = True
+        elif self.selection_type == "MATERIAL":
+            view_layer.use_pass_cryptomatte_material = True
+        else:
+            raise ValueError
 
     def draw(self, layout):
         layout.prop(self, "name")

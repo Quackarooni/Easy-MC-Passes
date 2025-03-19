@@ -1,6 +1,9 @@
 import bpy
 
 
+helper_collections = []
+
+
 def fetch_user_preferences(attr_id=None):
     prefs = bpy.context.preferences.addons[__package__].preferences
 
@@ -20,7 +23,7 @@ def get_addon_property(prop_name, scene=None):
 def clear_helper_datablocks():
     scenes = bpy.data.scenes
 
-    for scene_name in ("EMP_Export_Passes", "EMP_Workbench_Cavity", "EMP_Shading_and_Shadows", "EMP_Cryptomatte"):
+    for scene_name in ("EMP_Export_Passes", "EMP_Workbench_Cavity", "EMP_Shading_and_Shadows", "EMP_Cryptomatte", "EMP_Solo_Masks"):
         if scene_name in scenes:
             scenes.remove(scenes[scene_name])
 
@@ -29,6 +32,14 @@ def clear_helper_datablocks():
     for mat_name in ("EMP_BlankMaterial",):
         if mat_name in materials:
             materials.remove(materials[mat_name])
+
+    collections = bpy.data.collections
+
+    for col in helper_collections:
+        if col.name in collections:
+            collections.remove(col)
+
+    helper_collections.clear()
 
 
 def load_image(name, path, replace_existing=False):
@@ -76,7 +87,7 @@ def link_mask_sockets(tree, mask):
 
     if not mask.invert:
         input_node = tree.nodes[mask.name]
-        input_soc = "Matte"
+        input_soc = "Alpha" if mask.solo else "Matte"
     else:
         input_node = tree.nodes[f"Invert_{mask.name}"]
         input_soc = 0
@@ -111,8 +122,13 @@ def add_node(tree, node_type, *_, **props):
     return node
 
 
-def create_scene(base_scene, name, clear_tree=False):
-    new_scene = base_scene.copy()
+def create_scene(base_scene=None, name="Scene", clear_tree=False):
+
+    if base_scene is not None:
+        new_scene = base_scene.copy()
+    else:
+        new_scene = bpy.data.scenes.new(name)
+    
     new_scene.name = name
     new_scene.use_nodes = True
     
@@ -158,35 +174,77 @@ def create_light(name, type, *_, **props):
     return light
 
 
-def create_matte_masks(scene, tree, masks, start_location):
-    view_layer = scene.view_layers[0]
+def create_collection(scene, name):
+    collections = bpy.data.collections
+
+    col = collections.new(name)
+    scene.collection.children.link(col)
     
+    helper_collections.append(col)
+    return col
+
+
+def create_solo_view_layers(scene):
+    mask_view_layers = []
+
+    for mask in get_mask_layers():
+        if mask.solo:
+            col = create_collection(scene, name=mask.view_layer_name)
+            
+            view_layer = scene.view_layers.new(mask.view_layer_name)
+            view_layer.use_pass_combined = True
+            mask_view_layers.append(view_layer)
+
+            clear_passes(scene.render, view_layer)
+
+            for obj in mask.solo_objects:
+                if obj is not None:
+                    col.objects.link(obj)
+
+    for view_layer in mask_view_layers:
+        for layer_col in view_layer.layer_collection.children:
+            layer_col.exclude = (layer_col.name != view_layer.name)
+
+
+def create_matte_masks(cryptomatte_scene, solo_scene, tree, masks, start_location):
     for i, mask in enumerate(masks):
+
+        view_layer_name = mask.view_layer_name
         location = (start_location[0], start_location[1] - i*45)
 
-        node = add_node(tree, "CompositorNodeCryptomatteV2",
-            name=mask.name, label=mask.name, scene=scene, location=location)
-        node.hide = True
+        if mask.solo:
+            node = add_node(tree, "CompositorNodeRLayers",
+                name=mask.name, label=mask.name, scene=solo_scene, location=location)
+            node.hide = True
+        else:
+            node = add_node(tree, "CompositorNodeCryptomatteV2",
+                name=mask.name, label=mask.name, scene=cryptomatte_scene, location=location)
+            node.hide = True
 
         if mask.invert:
             invert_node = add_node(tree, "CompositorNodeMath", name=f"Invert_{mask.name}", label="Invert", operation="SUBTRACT", location=location)
             invert_node.hide = True
             invert_node.location.x += 260.0
             invert_node.inputs[0].default_value = 1.0
-            tree.links.new(node.outputs["Matte"], invert_node.inputs[1])
 
-        selection_type = mask.selection_type
-        if selection_type == "OBJECT":
-            node.layer_name = f"{view_layer.name}.CryptoObject"
-            node.matte_id = mask.selection_object.name
-        elif selection_type == "MATERIAL":
-            node.layer_name = f"{view_layer.name}.CryptoMaterial"
-            node.matte_id = mask.selection_material.name
-        elif selection_type == "COLLECTION":
-            node.layer_name = f"{view_layer.name}.CryptoObject"
-            node.matte_id = ", ".join((o.name for o in mask.selection_collection.all_objects))
+            sock_name = "Alpha" if mask.solo else "Matte"
+            tree.links.new(node.outputs[sock_name], invert_node.inputs[1])
+
+        if mask.solo:
+            node.layer = mask.view_layer_name
         else:
-            raise ValueError
+            selection_type = mask.selection_type
+            if selection_type == "OBJECT":
+                node.layer_name = f"{view_layer_name}.CryptoObject"
+                node.matte_id = mask.selection_object.name
+            elif selection_type == "MATERIAL":
+                node.layer_name = f"{view_layer_name}.CryptoMaterial"
+                node.matte_id = mask.selection_material.name
+            elif selection_type == "COLLECTION":
+                node.layer_name = f"{view_layer_name}.CryptoObject"
+                node.matte_id = ", ".join((o.name for o in mask.selection_collection.all_objects))
+            else:
+                raise ValueError
 
 
 def set_standard_view_transform(scene):
@@ -377,6 +435,22 @@ def init_cryptomatte_scene(scene):
         view_layer.use_pass_cryptomatte_material = True
 
     set_standard_view_transform(scene)
+
+
+def init_solo_scene(scene):
+    render = scene.render
+    view_layer = scene.view_layers[0]
+    active_camera = bpy.context.scene.camera
+    
+    clear_passes(render, view_layer)
+    scene.collection.objects.link(active_camera)
+    scene.camera = active_camera
+
+    scene.render.film_transparent = True
+    scene.render.engine = 'BLENDER_EEVEE_NEXT'
+    scene.display.render_aa = '32'
+
+    scene.eevee.taa_render_samples = 16
 
 
 def get_prop_name(data, prop_name):

@@ -16,12 +16,14 @@ from .utils import (
     link_pass_sockets,
     load_image,
     create_scene, 
+    create_solo_view_layers,
     create_file_outputs, 
     create_exr_outputs, 
     init_main_passes_scene, 
     init_cavity_scene, 
     init_cryptomatte_scene,
-    init_shading_scene
+    init_shading_scene,
+    init_solo_scene
     )
 
 
@@ -85,7 +87,12 @@ class EMP_OT_EXPORT_PASSES(Operator):
         if len(masks) > 0:
             cryptomatte_scene = create_scene(scene, "EMP_Cryptomatte", clear_tree=True)
             init_cryptomatte_scene(cryptomatte_scene)
-            create_matte_masks(cryptomatte_scene, tree, masks, start_location=(-160.0, -150.0))
+            
+            solo_scene = create_scene(name="EMP_Solo_Masks", clear_tree=True)
+            init_solo_scene(solo_scene)
+            create_solo_view_layers(solo_scene)
+
+            create_matte_masks(cryptomatte_scene, solo_scene, tree, masks, start_location=(-160.0, -150.0))
 
         outputs = (*passes, *masks)
         create_file_outputs(output_node, outputs)
