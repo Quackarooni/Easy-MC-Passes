@@ -2,7 +2,7 @@ import bpy
 from bpy.types import Operator, Panel, UIList
 
 from .operators import EMP_OT_EXPORT_PASSES, EMP_OT_OPEN_FILE_EXPLORER
-from .utils import get_addon_property, get_addon_properties
+from .utils import get_addon_property, get_addon_properties, ui_draw_enum_prop
 
 
 def clamp(value, lower, upper):
@@ -104,6 +104,8 @@ class EMP_PT_MASK_LAYERS(Panel):
             active_prop.draw(layout)
         except IndexError:
             pass
+
+        ui_draw_enum_prop(layout, data, "mask_engine")
         
 
 class EMP_PT_UL_MASKS(UIList):

@@ -427,6 +427,7 @@ def init_cryptomatte_scene(scene):
         view_layer.use_pass_cryptomatte_material = True
 
     set_standard_view_transform(scene)
+    apply_mask_scene_settings(scene)
 
 
 def init_solo_scene(scene):
@@ -439,11 +440,7 @@ def init_solo_scene(scene):
     scene.camera = active_camera
 
     scene.render.film_transparent = True
-    scene.render.engine = 'CYCLES'
-    scene.display.render_aa = '32'
-
-    scene.eevee.taa_render_samples = 16
-    scene.cycles.samples = 16
+    apply_mask_scene_settings(scene)
 
     active_scene = bpy.context.scene
     scene.cycles.feature_set = active_scene.cycles.feature_set
@@ -459,3 +456,15 @@ def ui_draw_enum_prop(layout, data, prop_name):
     col.label(text=f"{get_prop_name(data, prop_name)}:")
     col.prop(data, prop_name, text="")
 
+
+def apply_mask_scene_settings(scene):
+    engine = get_addon_property("mask_engine")
+    scene.render.engine = engine
+    scene.display.render_aa = '32'
+
+    scene.eevee.taa_render_samples = 16
+    scene.cycles.samples = 16
+
+    # Disable depth-of-field if engine is EEVEE
+    # since it is incompatible with cryptomatte
+    scene.eevee.bokeh_max_size = 0

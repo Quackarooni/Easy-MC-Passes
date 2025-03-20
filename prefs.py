@@ -260,6 +260,14 @@ class EasyMCPassesProperties(PropertyGroup):
     
     mask_layers : CollectionProperty(name="Mask", type=EMPMaskLayer)
     active_mask_index : IntProperty(name="Active Index", min=0)
+    mask_engine: EnumProperty(
+        name="Render Engine",
+        default="BLENDER_EEVEE_NEXT",
+        items=(
+            ("BLENDER_EEVEE_NEXT", "EEVEE", ""),
+            ("CYCLES", "Cycles", ""),
+            ),
+        )
 
     export_path : StringProperty(name="Export Path", subtype='FILE_PATH', get=get_default_export_path, set=set_default_export_path)
     light_direction : FloatVectorProperty(name="Light Direction", subtype="EULER", precision=5, step=100)
