@@ -169,8 +169,12 @@ class EMPMaskLayer(PropertyGroup):
                     yield obj
 
         elif self.selection_type == "COLLECTION":
-            for obj in self.selection_collection.all_objects:
-                yield obj
+            col = self.selection_collection
+            if col is None:
+                yield None
+            else:
+                for obj in col.all_objects:
+                    yield obj
 
     def layer_name(self, view_layer_name):
         selection_type = self.selection_type
@@ -187,15 +191,30 @@ class EMPMaskLayer(PropertyGroup):
     def matte_id(self):
         selection_type = self.selection_type
         if selection_type == "OBJECT":
+            obj = self.selection_object
+            if obj is None:
+                return ""
+
             if self.obj_include_children:
-                objects = (self.selection_object, *(self.selection_object.children_recursive))
+                objects = (obj, *(obj.children_recursive))
                 return ", ".join((o.name for o in objects))
             else:
                 return self.selection_object.name
+            
         elif selection_type == "MATERIAL":
-            return self.selection_material.name
+            mat = self.selection_material
+            if mat is None:
+                return ""
+            
+            return mat.name
+        
         elif selection_type == "COLLECTION":
-            return ", ".join((o.name for o in self.selection_collection.all_objects))
+            col = self.selection_collection
+            if col is None:
+                return ""
+            
+            return ", ".join((o.name for o in col.all_objects))
+        
         else:
             raise ValueError
 
