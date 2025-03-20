@@ -2,18 +2,11 @@ import bpy
 from bpy.types import Operator, Panel, UIList
 
 from .operators import EMP_OT_EXPORT_PASSES, EMP_OT_OPEN_FILE_EXPLORER
-from .utils import get_addon_property
+from .utils import get_addon_property, get_addon_properties
 
 
 def clamp(value, lower, upper):
     return lower if value < lower else upper if value > upper else value
-
-
-def get_properties(context):
-    try:
-        return context.scene.EMP_Properties
-    except AttributeError:
-        return
 
 
 class EMP_PT_PASS_MANAGER(Panel):
@@ -30,7 +23,7 @@ class EMP_PT_PASS_MANAGER(Panel):
         layout = self.layout
 
         row = layout.row()
-        data = get_properties(context)
+        data = get_addon_properties()
         row.template_list("EMP_PT_UL_PASSES", "", data, "render_passes", data, "active_pass_index")
 
         try:
@@ -53,7 +46,7 @@ class EMP_PT_EXPORT_PASSES(Panel):
     
     def draw(self, context):
         layout = self.layout
-        data = context.scene.EMP_Properties
+        data = get_addon_properties()
         
         layout.prop(data, "export_path", text="", placeholder="Export Path")
         layout.operator(EMP_OT_EXPORT_PASSES.bl_idname)
@@ -88,7 +81,7 @@ class EMP_PT_MASK_LAYERS(Panel):
         layout = self.layout
 
         row = layout.row()
-        data = get_properties(context)
+        data = get_addon_properties()
         row.template_list("EMP_PT_UL_MASKS", "", data, "mask_layers", data, "active_mask_index")
         collection = get_addon_property("mask_layers")
 
@@ -144,7 +137,7 @@ class EMP_OT_ADD_MASK(Operator):
         prop = collection.add()
         prop.initialize_name()
 
-        data = get_properties(context)
+        data = get_addon_properties()
         max_index = len(collection) - 1
 
         intended_index = clamp(data.active_mask_index + 1, lower=0, upper=max_index)
@@ -162,10 +155,10 @@ class EMP_OT_REMOVE_MASK(Operator):
 
     @classmethod 
     def poll(cls, context):
-        return get_properties(context)
+        return get_addon_properties()
 
     def execute(self, context):
-        data = get_properties(context)
+        data = get_addon_properties()
         prop = get_addon_property("mask_layers")
         index = data.active_mask_index
 
@@ -197,7 +190,7 @@ class EMP_OT_MOVE_MASK(Operator):
 
     @classmethod 
     def poll(cls, context): 
-        return get_properties(context)
+        return get_addon_properties()
 
     def move_index(self, collection, data, index): 
         list_length = len(collection) - 1 # (index starts at 0) 
@@ -205,7 +198,7 @@ class EMP_OT_MOVE_MASK(Operator):
         data.active_mask_index = max(0, min(new_index, list_length)) 
 
     def execute(self, context): 
-        data = get_properties(context)
+        data = get_addon_properties()
         index = data.active_mask_index
         my_list = get_addon_property("mask_layers")
 

@@ -17,7 +17,7 @@ import re
 from collections import Counter
 
 from .keymaps import keymap_layout
-from .utils import fetch_user_preferences, get_addon_property, ui_draw_enum_prop
+from .utils import fetch_user_preferences, get_addon_property, get_addon_properties, ui_draw_enum_prop
 
 from bpy.app.handlers import persistent
 
@@ -56,7 +56,7 @@ class EMPRenderPass(PropertyGroup):
 
     def draw(self, layout):
         if self.name in {"Shading", "Shadow"}:
-            data = bpy.context.scene.EMP_Properties
+            data = get_addon_properties()
             col = layout.column()
             col.prop(data, "light_direction")
 

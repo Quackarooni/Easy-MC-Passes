@@ -10,6 +10,16 @@ def fetch_user_preferences(attr_id=None):
         return getattr(prefs, attr_id)
 
 
+def get_addon_properties(context=None):
+    if context is None:
+        context = bpy.context
+    
+    try:
+        return context.scene.EMP_Properties
+    except AttributeError:
+        return
+    
+
 def get_addon_property(prop_name, scene=None):
     if scene is None:
         scene = bpy.context.scene
