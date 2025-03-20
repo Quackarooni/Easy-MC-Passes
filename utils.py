@@ -201,7 +201,6 @@ def create_solo_view_layers(scene):
 
 def create_matte_masks(cryptomatte_scene, solo_scene, tree, masks, start_location):
     for i, mask in enumerate(masks):
-
         view_layer_name = mask.view_layer_name
         location = (start_location[0], start_location[1] - i*45)
 
@@ -226,19 +225,8 @@ def create_matte_masks(cryptomatte_scene, solo_scene, tree, masks, start_locatio
         if mask.solo:
             node.layer = mask.view_layer_name
         else:
-            selection_type = mask.selection_type
-            if selection_type == "OBJECT":
-                node.layer_name = f"{view_layer_name}.CryptoObject"
-                objects = (mask.selection_object, *(mask.selection_object.children_recursive))
-                node.matte_id = ", ".join((o.name for o in objects))
-            elif selection_type == "MATERIAL":
-                node.layer_name = f"{view_layer_name}.CryptoMaterial"
-                node.matte_id = mask.selection_material.name
-            elif selection_type == "COLLECTION":
-                node.layer_name = f"{view_layer_name}.CryptoObject"
-                node.matte_id = ", ".join((o.name for o in mask.selection_collection.all_objects))
-            else:
-                raise ValueError
+            node.layer_name = mask.layer_name(view_layer_name)
+            node.matte_id = mask.matte_id
 
 
 def set_standard_view_transform(scene):

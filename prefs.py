@@ -119,6 +119,7 @@ class EMPMaskLayer(PropertyGroup):
     render: BoolProperty(name="Render", default=True, options=set())
     invert: BoolProperty(name="Invert Mask", default=False, options=set())
     solo: BoolProperty(name="Solo", default=False, options=set())
+    obj_include_children: BoolProperty(name="Include Children", default=True, options=set())
 
     selection_type : EnumProperty(
         name="Selection Type",
@@ -155,7 +156,7 @@ class EMPMaskLayer(PropertyGroup):
             obj = self.selection_object
             yield obj
 
-            if obj:
+            if obj and self.obj_include_children:
                 for child in obj.children_recursive:
                     yield child
 
@@ -171,6 +172,33 @@ class EMPMaskLayer(PropertyGroup):
             for obj in self.selection_collection.all_objects:
                 yield obj
 
+    def layer_name(self, view_layer_name):
+        selection_type = self.selection_type
+        if selection_type == "OBJECT":
+            return f"{view_layer_name}.CryptoObject"
+        elif selection_type == "MATERIAL":
+            return f"{view_layer_name}.CryptoMaterial"
+        elif selection_type == "COLLECTION":
+            return f"{view_layer_name}.CryptoObject"
+        else:
+            raise ValueError
+
+    @property
+    def matte_id(self):
+        selection_type = self.selection_type
+        if selection_type == "OBJECT":
+            if self.obj_include_children:
+                objects = (self.selection_object, *(self.selection_object.children_recursive))
+                return ", ".join((o.name for o in objects))
+            else:
+                return self.selection_object.name
+        elif selection_type == "MATERIAL":
+            return self.selection_material.name
+        elif selection_type == "COLLECTION":
+            return ", ".join((o.name for o in self.selection_collection.all_objects))
+        else:
+            raise ValueError
+
     def enable_pass(self, view_layer):
         if self.selection_type in {"OBJECT", "COLLECTION"}:
             view_layer.use_pass_cryptomatte_object = True
@@ -183,12 +211,14 @@ class EMPMaskLayer(PropertyGroup):
         layout.prop(self, "name")
         ui_draw_enum_prop(layout, self, "selection_type")
 
+        col = layout.column()
         if self.selection_type == "OBJECT":
-            ui_draw_enum_prop(layout, self, "selection_object")
+            ui_draw_enum_prop(col, self, "selection_object")
+            col.prop(self, "obj_include_children")
         elif self.selection_type == "MATERIAL":
-            ui_draw_enum_prop(layout, self, "selection_material")
+            ui_draw_enum_prop(col, self, "selection_material")
         elif self.selection_type == "COLLECTION":
-            ui_draw_enum_prop(layout, self, "selection_collection")
+            ui_draw_enum_prop(col, self, "selection_collection")
         else:
             raise ValueError()
 
