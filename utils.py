@@ -1,9 +1,6 @@
 import bpy
 
 
-helper_collections = []
-
-
 def fetch_user_preferences(attr_id=None):
     prefs = bpy.context.preferences.addons[__package__].preferences
 
@@ -35,11 +32,9 @@ def clear_helper_datablocks():
 
     collections = bpy.data.collections
 
-    for col in helper_collections:
-        if col.name in collections:
+    for col in collections:
+        if col.name.startswith("EMP_"):
             collections.remove(col)
-
-    helper_collections.clear()
 
 
 def load_image(name, path, replace_existing=False):
@@ -179,8 +174,6 @@ def create_collection(scene, name):
 
     col = collections.new(name)
     scene.collection.children.link(col)
-    
-    helper_collections.append(col)
     return col
 
 
