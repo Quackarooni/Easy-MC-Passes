@@ -429,10 +429,15 @@ def init_solo_scene(scene):
     scene.camera = active_camera
 
     scene.render.film_transparent = True
-    scene.render.engine = 'BLENDER_EEVEE_NEXT'
+    scene.render.engine = 'CYCLES'
     scene.display.render_aa = '32'
 
     scene.eevee.taa_render_samples = 16
+    scene.cycles.samples = 16
+
+    active_scene = bpy.context.scene
+    scene.cycles.feature_set = active_scene.cycles.feature_set
+    scene.cycles.device = active_scene.cycles.device
 
 
 def get_prop_name(data, prop_name):
