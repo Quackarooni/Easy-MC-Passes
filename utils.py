@@ -229,7 +229,8 @@ def create_matte_masks(cryptomatte_scene, solo_scene, tree, masks, start_locatio
             selection_type = mask.selection_type
             if selection_type == "OBJECT":
                 node.layer_name = f"{view_layer_name}.CryptoObject"
-                node.matte_id = mask.selection_object.name
+                objects = (mask.selection_object, *(mask.selection_object.children_recursive))
+                node.matte_id = ", ".join((o.name for o in objects))
             elif selection_type == "MATERIAL":
                 node.layer_name = f"{view_layer_name}.CryptoMaterial"
                 node.matte_id = mask.selection_material.name

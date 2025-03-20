@@ -152,7 +152,13 @@ class EMPMaskLayer(PropertyGroup):
     @property
     def solo_objects(self):
         if self.selection_type == "OBJECT":
-            yield self.selection_object
+            obj = self.selection_object
+            yield obj
+
+            if obj:
+                for child in obj.children_recursive:
+                    yield child
+
         elif self.selection_type == "MATERIAL":
             material = self.selection_material
             user_map = bpy.data.user_map(subset=(material,))
