@@ -106,6 +106,11 @@ class EMP_PT_MASK_LAYERS(Panel):
             pass
 
         ui_draw_enum_prop(layout, data, "mask_engine")
+
+        if data.mask_engine == "BLENDER_EEVEE_NEXT":
+            layout.prop(data, "mask_eevee_samples")
+        elif data.mask_engine == "CYCLES":
+            layout.prop(data, "mask_cycles_samples")
         
 
 class EMP_PT_UL_MASKS(UIList):

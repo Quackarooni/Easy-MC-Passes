@@ -458,12 +458,13 @@ def ui_draw_enum_prop(layout, data, prop_name):
 
 
 def apply_mask_scene_settings(scene):
-    engine = get_addon_property("mask_engine")
-    scene.render.engine = engine
+    properties = get_addon_properties()
+
+    scene.render.engine = properties.mask_engine
     scene.display.render_aa = '32'
 
-    scene.eevee.taa_render_samples = 16
-    scene.cycles.samples = 16
+    scene.eevee.taa_render_samples = properties.mask_eevee_samples
+    scene.cycles.samples = properties.mask_cycles_samples
 
     # Disable depth-of-field if engine is EEVEE
     # since it is incompatible with cryptomatte
