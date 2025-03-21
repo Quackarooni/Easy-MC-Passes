@@ -105,7 +105,7 @@ class EMP_PT_MASK_LAYERS(Panel):
         except IndexError:
             pass
 
-        header, panel = layout.panel("EMP_PT_MASK_RENDER_SETTINGS")
+        header, panel = layout.panel("EMP_PT_MASK_RENDER_SETTINGS", default_closed=True)
         header.label(text="Render Settings")
         if panel:
             panel.use_property_split = True
