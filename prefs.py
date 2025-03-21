@@ -117,9 +117,15 @@ class EMPMaskLayer(PropertyGroup):
 
     name: StringProperty(name="Name", default="Mask", update=set_unique_name)
     render: BoolProperty(name="Render", default=True, options=set())
-    invert: BoolProperty(name="Invert Mask", default=False, options=set())
-    solo: BoolProperty(name="Solo", default=False, options=set())
-    obj_include_children: BoolProperty(name="Include Children", default=True, options=set())
+    invert: BoolProperty(name="Invert Mask", default=False, options=set(),
+        description="Invert the resulting mask, such that selected and unselected areas are swapped"
+        )
+    solo: BoolProperty(name="Solo", default=False, options=set(),
+        description="Render the selection in a separate layer isolated from other objects"
+        )
+    obj_include_children: BoolProperty(name="Include Children", default=True, options=set(),
+        description="Include all objects parented to this object as a part of the selection"
+        )
 
     selection_type : EnumProperty(
         name="Selection Type",
@@ -263,6 +269,7 @@ class EasyMCPassesProperties(PropertyGroup):
     mask_engine: EnumProperty(
         name="Engine",
         default="BLENDER_EEVEE_NEXT",
+        description="Engine to use for rendering",
         items=(
             ("BLENDER_EEVEE_NEXT", "EEVEE", ""),
             ("CYCLES", "Cycles", ""),
@@ -270,11 +277,19 @@ class EasyMCPassesProperties(PropertyGroup):
         options=set()
         )
     
-    mask_eevee_samples : IntProperty(name="Samples", min=1, default=16, options=set())
-    mask_cycles_samples : IntProperty(name="Samples", min=1, default=256, options=set())
+    mask_eevee_samples : IntProperty(name="Samples", min=1, default=16, options=set(),
+        description="Number of samples per pixel for rendering"                             
+        )
+    mask_cycles_samples : IntProperty(name="Samples", min=1, default=256, options=set(),
+        description="Number of samples per pixel for rendering"
+        )
 
-    export_path : StringProperty(name="Export Path", subtype='FILE_PATH', get=get_default_export_path, set=set_default_export_path)
-    light_direction : FloatVectorProperty(name="Light Direction", subtype="EULER", precision=5, step=100)
+    export_path : StringProperty(name="Export Path", subtype='FILE_PATH', get=get_default_export_path, set=set_default_export_path,
+        description="Directory where the various image outputs will be exported to"
+        )
+    light_direction : FloatVectorProperty(name="Light Direction", subtype="EULER", precision=5, step=100,
+        description="The direction of the lighting calculated in Shading & Shadow passes"
+        )
 
 
 class EasyMCPassesPreferences(AddonPreferences):
