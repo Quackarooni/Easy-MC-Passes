@@ -267,10 +267,11 @@ class EasyMCPassesProperties(PropertyGroup):
             ("BLENDER_EEVEE_NEXT", "EEVEE", ""),
             ("CYCLES", "Cycles", ""),
             ),
+        options=set()
         )
     
-    mask_eevee_samples : IntProperty(name="Samples", min=1, default=16)
-    mask_cycles_samples : IntProperty(name="Samples", min=1, default=256)
+    mask_eevee_samples : IntProperty(name="Samples", min=1, default=16, options=set())
+    mask_cycles_samples : IntProperty(name="Samples", min=1, default=256, options=set())
 
     export_path : StringProperty(name="Export Path", subtype='FILE_PATH', get=get_default_export_path, set=set_default_export_path)
     light_direction : FloatVectorProperty(name="Light Direction", subtype="EULER", precision=5, step=100)
