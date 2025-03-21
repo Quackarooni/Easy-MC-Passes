@@ -105,13 +105,17 @@ class EMP_PT_MASK_LAYERS(Panel):
         except IndexError:
             pass
 
-        ui_draw_enum_prop(layout, data, "mask_engine")
+        header, panel = layout.panel("EMP_PT_MASK_RENDER_SETTINGS")
+        header.label(text="Render Settings")
+        if panel:
+            data = get_addon_properties()
+            ui_draw_enum_prop(panel, data, "mask_engine")
 
-        if data.mask_engine == "BLENDER_EEVEE_NEXT":
-            layout.prop(data, "mask_eevee_samples")
-        elif data.mask_engine == "CYCLES":
-            layout.prop(data, "mask_cycles_samples")
-        
+            if data.mask_engine == "BLENDER_EEVEE_NEXT":
+                panel.prop(data, "mask_eevee_samples")
+            elif data.mask_engine == "CYCLES":
+                panel.prop(data, "mask_cycles_samples")
+
 
 class EMP_PT_UL_MASKS(UIList):
     def draw_item(self, context, layout, data, item, icon, active_data, active_propname, index):
