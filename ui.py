@@ -107,8 +107,8 @@ class EMP_PT_MASK_LAYERS(Panel):
 
         header, panel = layout.panel("EMP_PT_MASK_RENDER_SETTINGS")
         header.label(text="Render Settings")
-        panel.use_property_split = True
         if panel:
+            panel.use_property_split = True
             data = get_addon_properties()
             col = panel.column()
             col.prop(data, "mask_engine")
