@@ -107,14 +107,15 @@ class EMP_PT_MASK_LAYERS(Panel):
 
         header, panel = layout.panel("EMP_PT_MASK_RENDER_SETTINGS")
         header.label(text="Render Settings")
+        panel.use_property_split = True
         if panel:
             data = get_addon_properties()
-            ui_draw_enum_prop(panel, data, "mask_engine")
-
+            col = panel.column()
+            col.prop(data, "mask_engine")
             if data.mask_engine == "BLENDER_EEVEE_NEXT":
-                panel.prop(data, "mask_eevee_samples")
+                col.prop(data, "mask_eevee_samples")
             elif data.mask_engine == "CYCLES":
-                panel.prop(data, "mask_cycles_samples")
+                col.prop(data, "mask_cycles_samples")
 
 
 class EMP_PT_UL_MASKS(UIList):
