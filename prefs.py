@@ -261,7 +261,7 @@ class EasyMCPassesProperties(PropertyGroup):
     mask_layers : CollectionProperty(name="Mask", type=EMPMaskLayer)
     active_mask_index : IntProperty(name="Active Index", min=0)
     mask_engine: EnumProperty(
-        name="Render Engine",
+        name="Engine",
         default="BLENDER_EEVEE_NEXT",
         items=(
             ("BLENDER_EEVEE_NEXT", "EEVEE", ""),
