@@ -34,6 +34,7 @@ multilayer_export_path = ""
 class EMP_OT_EXPORT_PASSES(Operator):
     bl_idname = "render.emp_export_passes"
     bl_label = "Export Passes"
+    bl_description = "Render enabled passes & masks and export them as images"
     bl_options = {'REGISTER'} 
 
     @classmethod

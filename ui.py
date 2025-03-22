@@ -140,8 +140,8 @@ class EMP_PT_UL_MASKS(UIList):
 
 class EMP_OT_ADD_MASK(Operator): 
     bl_idname = "my_list.new_item" 
-    bl_label = "Add Property" 
-    bl_description = "Add a custom object property for all users of the current data"
+    bl_label = "Add Mask" 
+    bl_description = "Add a custom mask to render"
     bl_options = {"REGISTER", "UNDO"}
 
     def execute(self, context): 
@@ -161,8 +161,8 @@ class EMP_OT_ADD_MASK(Operator):
 
 class EMP_OT_REMOVE_MASK(Operator): 
     bl_idname = "my_list.delete_item" 
-    bl_label = "Remove Property" 
-    bl_description = "Remove selected property for all users of the current data"
+    bl_label = "Remove Mask" 
+    bl_description = "Remove currently selected mask"
     bl_options = {"REGISTER", "UNDO"}
 
     @classmethod 
@@ -181,7 +181,7 @@ class EMP_OT_REMOVE_MASK(Operator):
 
 class EMP_OT_MOVE_MASK(Operator): 
     bl_idname = "my_list.move_item" 
-    bl_label = "Move Item" 
+    bl_label = "Move Mask" 
     bl_options = {"REGISTER", "UNDO"}
 
     direction: bpy.props.EnumProperty(
@@ -194,9 +194,9 @@ class EMP_OT_MOVE_MASK(Operator):
     @classmethod
     def description(cls, context, props):
         if props.direction == "UP":
-            return "Move selected property higher up the list"
+            return "Move selected mask higher up the list"
         elif props.direction == "DOWN":
-            return "Move selected property lower down the list"
+            return "Move selected mask lower down the list"
         else:
             raise ValueError
 
