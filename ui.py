@@ -167,7 +167,8 @@ class EMP_OT_REMOVE_MASK(Operator):
 
     @classmethod 
     def poll(cls, context):
-        return get_addon_properties()
+        mask_layers = get_addon_property("mask_layers")
+        return len(mask_layers) > 0
 
     def execute(self, context):
         data = get_addon_properties()
@@ -201,8 +202,9 @@ class EMP_OT_MOVE_MASK(Operator):
             raise ValueError
 
     @classmethod 
-    def poll(cls, context): 
-        return get_addon_properties()
+    def poll(cls, context):
+        mask_layers = get_addon_property("mask_layers")
+        return len(mask_layers) > 0
 
     def move_index(self, collection, data, index): 
         list_length = len(collection) - 1 # (index starts at 0) 
