@@ -168,11 +168,12 @@ class EMPMaskLayer(PropertyGroup):
 
         elif self.selection_type == "MATERIAL":
             material = self.selection_material
-            user_map = bpy.data.user_map(subset=(material,))
-            material_users = user_map[material]
-            for obj in bpy.context.scene.collection.all_objects:
-                if obj.data in material_users:
-                    yield obj
+            if material is not None:
+                user_map = bpy.data.user_map(subset=(material,))
+                material_users = user_map[material]
+                for obj in bpy.context.scene.collection.all_objects:
+                    if obj.data in material_users:
+                        yield obj
 
         elif self.selection_type == "COLLECTION":
             col = self.selection_collection
