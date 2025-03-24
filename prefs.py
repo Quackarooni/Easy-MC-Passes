@@ -35,6 +35,8 @@ def setDefaultCollectionValue():
         ("Shading"),
         ("Shadow"),
         ("Freestyle"),
+        ("Environment"),
+        ("Ambient Occlusion"),
     )
 
     for default in defaults:
@@ -285,7 +287,7 @@ class EasyMCPassesProperties(PropertyGroup):
         description="Number of samples per pixel for rendering"
         )
 
-    export_path : StringProperty(name="Export Path", subtype='FILE_PATH', get=get_default_export_path, set=set_default_export_path,
+    export_path : StringProperty(name="Export Path", subtype='FILE_PATH',
         description="Directory where the various image outputs will be exported to"
         )
     light_direction : FloatVectorProperty(name="Light Direction", subtype="EULER", precision=5, step=100,
