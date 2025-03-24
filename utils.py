@@ -366,6 +366,7 @@ def add_pass(scene, pass_name):
 def init_main_passes_scene(scene, passes):
     render = scene.render
     render.engine = 'CYCLES'
+    render.use_compositing = True
 
     view_layer = scene.view_layers[0]
     clear_passes(render, view_layer)
