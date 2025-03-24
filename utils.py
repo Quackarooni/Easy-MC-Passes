@@ -69,6 +69,8 @@ pass_link_map = {
     "Shading" : ("Shading Passes", "Combined_EMP_ShadingPass"),
     "Shadow" : ("Shading Passes", "Combined_EMP_ShadowPass"),
     "Cavity" : ("Cavity Pass", "Image"),
+    "Environment" : ("Main Passes", "Env"),
+    "Ambient Occlusion" : ("Main Passes", "AO"),
 }
 
 
