@@ -299,10 +299,14 @@ class EasyMCPassesPreferences(AddonPreferences):
     bl_idname = __package__
     
     default_export_path : StringProperty(name="Default Export Path", default="/tmp\\", subtype='FILE_PATH')
+    view_passes_after_render : BoolProperty(name="Create EXR for Viewing", default=True,
+        description="Create an EXR file with the exported passes that gets viewed after render"
+        )
 
     def draw(self, context):
         layout = self.layout
         layout.prop(self, "default_export_path")
+        layout.prop(self, "view_passes_after_render")
 
         keymap_layout.draw_keyboard_shorcuts(self, layout, context)
 

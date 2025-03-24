@@ -77,14 +77,19 @@ pass_link_map = {
 def link_pass_sockets(tree, render_pass):
     nodes = tree.nodes
     output_node1 = nodes["File Output (Images)"]
-    output_node2 = nodes["File Output (EXR)"]
+
+    prefs = fetch_user_preferences()
     pass_name = render_pass.name
+    
+    if prefs.view_passes_after_render:
+        output_node2 = nodes["File Output (EXR)"]
 
     input_node, input_soc = pass_link_map[pass_name]
     input_node = nodes[input_node]
 
     tree.links.new(input_node.outputs[input_soc], output_node1.inputs[pass_name])
-    tree.links.new(input_node.outputs[input_soc], output_node2.inputs[render_pass.exr_output_name])
+    if fetch_user_preferences("view_passes_after_render"):
+        tree.links.new(input_node.outputs[input_soc], output_node2.inputs[render_pass.exr_output_name])
 
 
 def link_mask_sockets(tree, mask):
@@ -100,7 +105,8 @@ def link_mask_sockets(tree, mask):
         input_soc = 0
 
     tree.links.new(input_node.outputs[input_soc], output_node1.inputs[mask.name])
-    tree.links.new(input_node.outputs[input_soc], output_node2.inputs[mask.exr_output_name])
+    if fetch_user_preferences("view_passes_after_render"):
+        tree.links.new(input_node.outputs[input_soc], output_node2.inputs[mask.exr_output_name])
 
 
 def get_enabled_passes(collection):

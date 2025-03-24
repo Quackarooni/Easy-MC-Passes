@@ -9,6 +9,7 @@ from .utils import (
     add_node, 
     create_matte_masks,
     clear_helper_datablocks,
+    fetch_user_preferences,
     get_addon_property,
     get_mask_layers,
     get_multilayer_render_path,
@@ -50,6 +51,7 @@ class EMP_OT_EXPORT_PASSES(Operator):
         scene = context.scene
 
         export_path = get_addon_property("export_path")
+        prefs = fetch_user_preferences()
 
         collection = get_addon_property("render_passes")
         passes = tuple(utils.get_enabled_passes(collection))
@@ -65,8 +67,10 @@ class EMP_OT_EXPORT_PASSES(Operator):
 
         tree = main_scene.node_tree
         output_node = add_node(tree, "CompositorNodeOutputFile", name="File Output (Images)", base_path=export_path, width=360, location=(500.0, 450.0))
-        exr_output_node = add_node(tree, "CompositorNodeOutputFile", name="File Output (EXR)", base_path=export_path + "Multilayer", width=360, location=(500.0, 160.0))
-        exr_output_node.format.file_format = "OPEN_EXR_MULTILAYER"
+        
+        if prefs.view_passes_after_render:
+            exr_output_node = add_node(tree, "CompositorNodeOutputFile", name="File Output (EXR)", base_path=export_path + "Multilayer", width=360, location=(500.0, 160.0))
+            exr_output_node.format.file_format = "OPEN_EXR_MULTILAYER"
 
         main_passes_node = add_node(tree, "CompositorNodeRLayers", name="Main Passes", location=(0.0, 450.0))
         main_passes_node.scene = main_scene
@@ -97,7 +101,8 @@ class EMP_OT_EXPORT_PASSES(Operator):
 
         outputs = (*passes, *masks)
         create_file_outputs(output_node, outputs)
-        create_exr_outputs(exr_output_node, outputs)
+        if prefs.view_passes_after_render:
+            create_exr_outputs(exr_output_node, outputs)
 
         for render_pass in passes:
             link_pass_sockets(tree, render_pass)
@@ -105,17 +110,21 @@ class EMP_OT_EXPORT_PASSES(Operator):
         for mask in masks:
             link_mask_sockets(tree, mask)
 
-        bpy.ops.render.render('INVOKE_SCREEN', scene=main_scene.name)
+        if prefs.view_passes_after_render:
+            bpy.ops.render.render('INVOKE_SCREEN', scene=main_scene.name)
+            # context.scene disappears when invoked in the handler
+            # so temporarily store it in a list that can be called by the handler
+            render_screen.append(context.screen)
+            
+            global multilayer_export_path    
+            multilayer_export_path = get_multilayer_render_path()
 
-        # context.scene disappears when invoked in the handler
-        # so temporarily store it in a list that can be called by the handler
-        render_screen.append(context.screen)
-        
-        global multilayer_export_path    
-        multilayer_export_path = get_multilayer_render_path()
-
-        bpy.app.handlers.render_complete.append(load_multilayer_image)
-        return {'FINISHED'}
+            bpy.app.handlers.render_complete.append(load_multilayer_image)
+            return {'FINISHED'}
+        else:
+            bpy.ops.render.render('EXEC_SCREEN', scene=main_scene.name)
+            self.report({'INFO'}, f"Successfully exported files at \"{export_path}\"")
+            return {'FINISHED'}
 
 
 def load_multilayer_image(*args, **kwargs):
