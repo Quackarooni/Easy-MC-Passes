@@ -5,8 +5,32 @@ from .operators import EMP_OT_EXPORT_PASSES, EMP_OT_OPEN_FILE_EXPLORER
 from .utils import get_addon_property, get_addon_properties, ui_draw_enum_prop
 
 
+from bl_ui.properties_freestyle import (
+    VIEWLAYER_PT_freestyle,
+    VIEWLAYER_PT_freestyle_lineset,
+    VIEWLAYER_PT_freestyle_linestyle_strokes,
+    VIEWLAYER_PT_freestyle_linestyle_color,
+    VIEWLAYER_PT_freestyle_linestyle_alpha,
+    VIEWLAYER_PT_freestyle_linestyle_thickness,
+    VIEWLAYER_PT_freestyle_linestyle_geometry,
+    VIEWLAYER_PT_freestyle_linestyle_texture,
+    VIEWLAYER_PT_freestyle_animation,
+    )
+
+
 def clamp(value, lower, upper):
     return lower if value < lower else upper if value > upper else value
+
+
+class FreestylePanelDummy:
+    __slots__ = ("layout",)
+
+    def __init__(self, layout):
+        self.layout = layout
+
+    draw_geometry_modifier = VIEWLAYER_PT_freestyle_linestyle_geometry.draw_geometry_modifier
+    draw_action_and_slot_selector = VIEWLAYER_PT_freestyle_animation.draw_action_and_slot_selector
+    _animated_id = VIEWLAYER_PT_freestyle_animation._animated_id
 
 
 class EMP_PT_PASS_MANAGER(Panel):
@@ -18,6 +42,17 @@ class EMP_PT_PASS_MANAGER(Panel):
     @classmethod
     def poll(cls, context):
         return True
+    
+    @staticmethod
+    def draw_panel(layout, context, panel_id, base_panel, label=None):
+        if base_panel.poll(context):
+            header, panel = layout.panel(panel_id, default_closed=True)
+
+            if label is None:
+                label = base_panel.bl_label.removeprefix("Freestyle ")
+            header.label(text=label)
+            if panel:
+                base_panel.draw(FreestylePanelDummy(panel), context)
 
     def draw(self, context):
         layout = self.layout
@@ -30,6 +65,26 @@ class EMP_PT_PASS_MANAGER(Panel):
             collection =  data.render_passes
             active_prop = collection[data.active_pass_index]
             active_prop.draw(layout)
+
+            render = context.scene.render
+            layout.use_property_split = False
+
+            if active_prop.name == "Freestyle":
+                layout.separator(factor=0.5)
+                layout.prop(render, "use_freestyle", text="Show Freestyle Settings")
+                layout = layout.column(align=True)
+
+                if render.use_freestyle:
+                    self.draw_panel(layout, context, label="Freestyle Controls", panel_id="EMP_PT_FREESTYLE", base_panel=VIEWLAYER_PT_freestyle)
+                    self.draw_panel(layout, context, panel_id="EMP_PT_FREESTYLE_LINESET", base_panel=VIEWLAYER_PT_freestyle_lineset)
+                    self.draw_panel(layout, context, panel_id="EMP_PT_FREESTYLE_LINESTYLE_STROKES", base_panel=VIEWLAYER_PT_freestyle_linestyle_strokes)
+                    self.draw_panel(layout, context, panel_id="EMP_PT_FREESTYLE_LINESTYLE_COLOR", base_panel=VIEWLAYER_PT_freestyle_linestyle_color)
+                    self.draw_panel(layout, context, panel_id="EMP_PT_FREESTYLE_LINESTYLE_ALPHA", base_panel=VIEWLAYER_PT_freestyle_linestyle_alpha)
+                    self.draw_panel(layout, context, panel_id="EMP_PT_FREESTYLE_LINESTYLE_THICKNESS", base_panel=VIEWLAYER_PT_freestyle_linestyle_thickness)
+                    self.draw_panel(layout, context, panel_id="EMP_PT_FREESTYLE_LINESTYLE_GEOMETRY", base_panel=VIEWLAYER_PT_freestyle_linestyle_geometry)
+                    self.draw_panel(layout, context, panel_id="EMP_PT_FREESTYLE_LINESTYLE_TEXTURE", base_panel=VIEWLAYER_PT_freestyle_linestyle_texture)
+                    self.draw_panel(layout, context, panel_id="EMP_PT_FREESTYLE_ANIMATION", base_panel=VIEWLAYER_PT_freestyle_animation)
+
         except IndexError:
             pass
 
