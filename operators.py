@@ -97,7 +97,7 @@ class EMP_OT_EXPORT_PASSES(Operator):
             init_solo_scene(solo_scene)
             create_solo_view_layers(solo_scene)
 
-            create_matte_masks(cryptomatte_scene, solo_scene, tree, masks, start_location=(-160.0, -400.0))
+            create_matte_masks(cryptomatte_scene, solo_scene, tree, masks, start_location=(-320.0, -400.0))
 
         outputs = (*passes, *masks)
         create_file_outputs(output_node, outputs)

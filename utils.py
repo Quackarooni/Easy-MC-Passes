@@ -97,12 +97,19 @@ def link_mask_sockets(tree, mask):
     output_node1 = nodes["File Output (Images)"]
     output_node2 = nodes["File Output (EXR)"]
 
-    if not mask.invert:
-        input_node = tree.nodes[mask.name]
-        input_soc = "Alpha" if mask.solo else "Matte"
+    if get_addon_property("mask_type") == "ALPHA":
+        input_node = tree.nodes[f"Alpha_{mask.name}"]
+        input_soc = "Image"
+
+        combined_soc = tree.nodes["Main Passes"].outputs["Image"]
+        tree.links.new(combined_soc, input_node.inputs[input_soc])
     else:
-        input_node = tree.nodes[f"Invert_{mask.name}"]
-        input_soc = 0
+        if not mask.invert:
+            input_node = tree.nodes[mask.name]
+            input_soc = "Alpha" if mask.solo else "Matte"
+        else:
+            input_node = tree.nodes[f"Invert_{mask.name}"]
+            input_soc = 0
 
     tree.links.new(input_node.outputs[input_soc], output_node1.inputs[mask.name])
     if fetch_user_preferences("view_passes_after_render"):
@@ -245,6 +252,20 @@ def create_matte_masks(cryptomatte_scene, solo_scene, tree, masks, start_locatio
         else:
             node.layer_name = mask.layer_name(view_layer_name)
             node.matte_id = mask.matte_id
+
+        if get_addon_property("mask_type") == "ALPHA":
+            set_alpha = add_node(tree, "CompositorNodeSetAlpha", name=f"Alpha_{mask.name}", mode="REPLACE_ALPHA", location=location)
+            set_alpha.hide = True
+            set_alpha.location.x += 420.0
+
+            if mask.invert:
+                output_soc = invert_node.outputs["Value"]
+            elif mask.solo:
+                output_soc = node.outputs["Alpha"]
+            else:
+                output_soc = node.outputs["Matte"]
+
+            tree.links.new(output_soc, set_alpha.inputs["Alpha"])
 
 
 def set_standard_view_transform(scene):

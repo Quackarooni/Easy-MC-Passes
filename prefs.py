@@ -294,6 +294,17 @@ class EasyMCPassesProperties(PropertyGroup):
         description="The direction of the lighting calculated in Shading & Shadow passes"
         )
 
+    mask_type: EnumProperty(
+        name="Mask Type",
+        default="ALPHA",
+        description="How the masks will be exported as",
+        items=(
+            ("ALPHA", "Alpha", "Render masks as PNG image with transparency"),
+            ("BLACK_AND_WHITE", "Black & White", "Render masks as black and white images"),
+            ),
+        options=set()
+        )
+
 
 class EasyMCPassesPreferences(AddonPreferences):
     bl_idname = __package__

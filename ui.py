@@ -116,6 +116,8 @@ class EMP_PT_MASK_LAYERS(Panel):
                 col.prop(data, "mask_eevee_samples")
             elif data.mask_engine == "CYCLES":
                 col.prop(data, "mask_cycles_samples")
+                
+            col.prop(data, "mask_type")
 
 
 class EMP_PT_UL_MASKS(UIList):
