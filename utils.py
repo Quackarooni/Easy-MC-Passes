@@ -161,15 +161,25 @@ def create_scene(base_scene=None, name="Scene", clear_tree=False):
 
 def create_file_outputs(node, outputs):
     slots = node.file_slots
-    slots.clear()
 
     for output in outputs:
         slots.new(output.name)
 
 
+def create_file_masks(node, masks):
+    slots = node.file_slots
+
+    for mask in masks:
+        slots.new(mask.name)
+        slot = slots[mask.name]
+
+        slot.use_node_format = False
+        slot.format.file_format = 'PNG'
+        slot.format.color_mode = 'RGBA'
+
+
 def create_exr_outputs(node, outputs):
     slots = node.file_slots
-    slots.clear()
 
     for output in outputs:
         slots.new(output.exr_output_name)

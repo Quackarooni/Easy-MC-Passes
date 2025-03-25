@@ -19,7 +19,8 @@ from .utils import (
     create_scene, 
     create_solo_view_layers,
     create_file_outputs, 
-    create_exr_outputs, 
+    create_file_masks,
+    create_exr_outputs,
     init_main_passes_scene, 
     init_cavity_scene, 
     init_cryptomatte_scene,
@@ -67,10 +68,12 @@ class EMP_OT_EXPORT_PASSES(Operator):
 
         tree = main_scene.node_tree
         output_node = add_node(tree, "CompositorNodeOutputFile", name="File Output (Images)", base_path=export_path, width=360, location=(500.0, 450.0))
-        
+        output_node.file_slots.clear()
+
         if prefs.view_passes_after_render:
             exr_output_node = add_node(tree, "CompositorNodeOutputFile", name="File Output (EXR)", base_path=export_path + "Multilayer", width=360, location=(500.0, 160.0))
             exr_output_node.format.file_format = "OPEN_EXR_MULTILAYER"
+            exr_output_node.file_slots.clear()
 
         main_passes_node = add_node(tree, "CompositorNodeRLayers", name="Main Passes", location=(0.0, 450.0))
         main_passes_node.scene = main_scene
@@ -99,10 +102,11 @@ class EMP_OT_EXPORT_PASSES(Operator):
 
             create_matte_masks(cryptomatte_scene, solo_scene, tree, masks, start_location=(-320.0, -400.0))
 
-        outputs = (*passes, *masks)
-        create_file_outputs(output_node, outputs)
+        create_file_outputs(output_node, passes)
+        create_file_masks(output_node, masks)
+
         if prefs.view_passes_after_render:
-            create_exr_outputs(exr_output_node, outputs)
+            create_exr_outputs(exr_output_node, (*passes, *masks))
 
         for render_pass in passes:
             link_pass_sockets(tree, render_pass)
