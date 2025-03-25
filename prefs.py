@@ -57,10 +57,20 @@ class EMPRenderPass(PropertyGroup):
         return f'Image.{self.name.replace(".", "_")}'
 
     def draw(self, layout):
+        col = layout.column()
         if self.name in {"Shading", "Shadow"}:
             data = get_addon_properties()
-            col = layout.column()
             col.prop(data, "light_direction")
+            
+        if self.name == "Freestyle":
+            layout.use_property_split = True
+            layout.use_property_decorate = False
+            rd = bpy.context.scene.render
+            
+            row = layout.row()
+            row.prop(rd, "line_thickness_mode", expand=True, text="Thickness Mode")
+            if rd.line_thickness_mode == 'ABSOLUTE':
+                layout.prop(rd, "line_thickness", text="Thickness")
 
 
 class EMPMaskLayer(PropertyGroup):
