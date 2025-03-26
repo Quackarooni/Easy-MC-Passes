@@ -95,7 +95,13 @@ def link_pass_sockets(tree, render_pass):
 def link_mask_sockets(tree, mask):
     nodes = tree.nodes
     output_node1 = nodes["File Output (Images)"]
-    output_node2 = nodes["File Output (EXR)"]
+
+    prefs = fetch_user_preferences()
+    use_exr = prefs.view_passes_after_render
+
+    if use_exr:
+        output_node2 = nodes["File Output (EXR)"]
+    
 
     if get_addon_property("mask_type") == "ALPHA":
         input_node = tree.nodes[f"Alpha_{mask.name}"]
@@ -112,7 +118,7 @@ def link_mask_sockets(tree, mask):
             input_soc = 0
 
     tree.links.new(input_node.outputs[input_soc], output_node1.inputs[mask.name])
-    if fetch_user_preferences("view_passes_after_render"):
+    if use_exr:
         tree.links.new(input_node.outputs[input_soc], output_node2.inputs[mask.exr_output_name])
 
 
