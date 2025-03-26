@@ -69,6 +69,10 @@ class EMP_PT_PASS_MANAGER(Panel):
             render = context.scene.render
             layout.use_property_split = False
 
+            if active_prop.name == "Direction Masks":
+                dir_masks = get_addon_property("direction_masks")
+                dir_masks.draw(layout)
+
             if active_prop.name == "Freestyle":
                 layout.separator(factor=0.5)
                 layout.prop(render, "use_freestyle", text="Show Freestyle Settings")

@@ -71,25 +71,41 @@ pass_link_map = {
     "Cavity" : ("Cavity Pass", "Image"),
     "Environment" : ("Main Passes", "Env"),
     "Ambient Occlusion" : ("Main Passes", "AO"),
+    "Direction Masks" : ("Main Passes", "Normal"),
 }
 
 
 def link_pass_sockets(tree, render_pass):
+    pass_name = render_pass.name
     nodes = tree.nodes
     output_node1 = nodes["File Output (Images)"]
 
     prefs = fetch_user_preferences()
-    pass_name = render_pass.name
-    
-    if prefs.view_passes_after_render:
+    use_exr = prefs.view_passes_after_render
+
+    if use_exr:
         output_node2 = nodes["File Output (EXR)"]
 
-    input_node, input_soc = pass_link_map[pass_name]
-    input_node = nodes[input_node]
+    if pass_name == "Direction Masks":
+        dir_masks = get_addon_property("direction_masks")
+        if dir_masks.has_outputs:
+            input_node, input_soc = pass_link_map[pass_name]
+            input_node = nodes[input_node]
+            sep_xyz = nodes["EMP_DirMaskXYZ"]
+        
+            tree.links.new(input_node.outputs[input_soc], sep_xyz.inputs["Vector"])
 
-    tree.links.new(input_node.outputs[input_soc], output_node1.inputs[pass_name])
-    if fetch_user_preferences("view_passes_after_render"):
-        tree.links.new(input_node.outputs[input_soc], output_node2.inputs[render_pass.exr_output_name])
+            dir_masks.link_sockets(tree, output_node1, is_exr=False)
+            if use_exr:
+                dir_masks.link_sockets(tree, output_node2, is_exr=True)
+
+    else:
+        input_node, input_soc = pass_link_map[pass_name]
+        input_node = nodes[input_node]
+
+        tree.links.new(input_node.outputs[input_soc], output_node1.inputs[pass_name])
+        if use_exr:
+            tree.links.new(input_node.outputs[input_soc], output_node2.inputs[render_pass.exr_output_name])
 
 
 def link_mask_sockets(tree, mask):
@@ -101,7 +117,6 @@ def link_mask_sockets(tree, mask):
 
     if use_exr:
         output_node2 = nodes["File Output (EXR)"]
-    
 
     if get_addon_property("mask_type") == "ALPHA":
         input_node = tree.nodes[f"Alpha_{mask.name}"]
@@ -169,7 +184,13 @@ def create_file_outputs(node, outputs):
     slots = node.file_slots
 
     for output in outputs:
-        slots.new(output.name)
+        name = output.name
+
+        if output.name == "Direction Masks":
+            dir_masks = get_addon_property("direction_masks")
+            dir_masks.create_outputs(slots, is_exr=False)
+        else:
+            slots.new(name)
 
 
 def create_file_masks(node, masks):
@@ -188,7 +209,11 @@ def create_exr_outputs(node, outputs):
     slots = node.file_slots
 
     for output in outputs:
-        slots.new(output.exr_output_name)
+        if output.name == "Direction Masks":
+            dir_masks = get_addon_property("direction_masks")
+            dir_masks.create_outputs(slots, is_exr=True)
+        else:
+            slots.new(output.exr_output_name)
 
 
 def get_multilayer_render_path():
@@ -401,7 +426,15 @@ def add_pass(scene, pass_name):
         scene.render.use_freestyle = True
         view_layer.use_freestyle = True
         view_layer.freestyle_settings.as_render_pass = True
-        
+    
+    elif pass_name == "Direction Masks":
+        dir_masks = get_addon_property("direction_masks")
+        if dir_masks.has_outputs:
+            setattr(view_layer, pass_name_map["Normal"], True)
+            tree = scene.node_tree
+            add_node(tree, node_type="CompositorNodeSeparateXYZ", name="EMP_DirMaskXYZ", location=(330, 750))
+            dir_masks.add_nodes(tree, start_location=(490, 750))
+
     else:
         setattr(view_layer, pass_name_map[pass_name], True)
 

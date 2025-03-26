@@ -17,7 +17,7 @@ import re
 from collections import Counter
 
 from .keymaps import keymap_layout
-from .utils import fetch_user_preferences, get_addon_property, get_addon_properties, ui_draw_enum_prop
+from .utils import add_node, fetch_user_preferences, get_addon_property, get_addon_properties, ui_draw_enum_prop
 
 from bpy.app.handlers import persistent
 
@@ -37,6 +37,7 @@ def setDefaultCollectionValue():
         ("Freestyle"),
         ("Environment"),
         ("Ambient Occlusion"),
+        ("Direction Masks"),
     )
 
     for default in defaults:
@@ -265,6 +266,89 @@ class EMPMaskLayer(PropertyGroup):
         col.prop(self, "solo")
 
 
+class EasyMCPassesDirectionMasks(PropertyGroup):
+    pos_x : BoolProperty(name="+X", default=True, options=set())
+    pos_y : BoolProperty(name="+Y", default=True, options=set())
+    pos_z : BoolProperty(name="+Z", default=True, options=set())
+    neg_x : BoolProperty(name="-X", default=True, options=set())
+    neg_y : BoolProperty(name="-Y", default=True, options=set())
+    neg_z : BoolProperty(name="-Z", default=True, options=set())
+
+    props = ("pos_x", "pos_y", "pos_z", "neg_x", "neg_y", "neg_z",)
+    prop_name_map = {
+        "pos_x" : "Dir_PosX",
+        "pos_y" : "Dir_PosY",
+        "pos_z" : "Dir_PosZ",
+        "neg_x" : "Dir_NegX",
+        "neg_y" : "Dir_NegY",
+        "neg_z" : "Dir_NegZ",
+    }
+
+    def draw(self, layout):
+        layout.label(text="Directions:")
+
+        row = layout.grid_flow()
+        col1 = row.column()
+        col2 = row.column()
+        col1.use_property_split = True
+        col2.use_property_split = True
+        col1.ui_units_x = 5
+        col2.ui_units_x = 5
+
+        for prop_name in self.props:
+            if prop_name.startswith("pos"):
+                col1.prop(self, prop_name)
+            else:
+                col2.prop(self, prop_name)
+
+    def output_name(self, prop_name, is_exr):
+        output_name = self.prop_name_map[prop_name]
+        if is_exr:
+            output_name = f"Image.{output_name}"
+
+        return output_name
+    
+    @property
+    def has_outputs(self):
+        return len(tuple(self.enabled_masks)) > 0
+
+    @property
+    def enabled_masks(self):
+        for prop_name in self.props:
+            if getattr(self, prop_name):
+                yield prop_name
+
+    def create_outputs(self, slots, is_exr):
+        for prop_name in self.enabled_masks:
+            slot_name = self.output_name(prop_name, is_exr=is_exr)
+            slots.new(slot_name)
+
+            slot = slots[slot_name]
+            slot.use_node_format = False
+            slot.format.file_format = 'PNG'
+            slot.format.color_mode = 'RGBA'
+
+    def link_sockets(self, tree, output_node, is_exr):
+        for prop_name in self.enabled_masks:
+            math_node = tree.nodes[self.output_name(prop_name, is_exr=False)]
+            tree.links.new(math_node.outputs["Value"], output_node.inputs[self.output_name(prop_name, is_exr=is_exr)])
+
+    def add_nodes(self, tree, start_location):
+        sep_xyz = tree.nodes["EMP_DirMaskXYZ"]
+
+        for i, prop_name in enumerate(self.enabled_masks):
+            location = (start_location[0], start_location[1] - i*45)
+            name = self.output_name(prop_name, is_exr=False)
+            math_node = add_node(tree, node_type="CompositorNodeMath", name=name, label=name, operation="MULTIPLY", location=location)
+            math_node.hide = True
+
+            value = 1 if prop_name.startswith("pos") else -1
+            math_node.inputs[1].default_value = value
+
+            target_socket = prop_name[-1].upper()
+            tree.links.new(sep_xyz.outputs[target_socket], math_node.inputs[0])
+
+
 class EasyMCPassesProperties(PropertyGroup):
     def get_default_export_path(self):
         export_path = self.get("export_path", fetch_user_preferences("default_export_path"))
@@ -314,6 +398,8 @@ class EasyMCPassesProperties(PropertyGroup):
             ),
         options=set()
         )
+    
+    direction_masks : PointerProperty(name="Direction Masks", type=EasyMCPassesDirectionMasks)
 
 
 class EasyMCPassesPreferences(AddonPreferences):
@@ -343,6 +429,7 @@ def onFileLoaded(dummy):
 classes = (
     EMPRenderPass,
     EMPMaskLayer,
+    EasyMCPassesDirectionMasks,
     EasyMCPassesProperties,
     EasyMCPassesPreferences,
     )
