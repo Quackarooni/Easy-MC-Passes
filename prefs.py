@@ -409,11 +409,15 @@ class EasyMCPassesPreferences(AddonPreferences):
     view_passes_after_render : BoolProperty(name="Create EXR for Viewing", default=True,
         description="Create an EXR file with the exported passes that gets viewed after render"
         )
+    force_render_window : BoolProperty(name="Force Render Window", default=True,
+        description="Forces the Render window to appear when rendering. (This avoids crashes when running specific versions of Blender.)"
+        )
 
     def draw(self, context):
-        layout = self.layout
+        layout = self.layout.column()
         layout.prop(self, "default_export_path")
         layout.prop(self, "view_passes_after_render")
+        layout.prop(self, "force_render_window")
 
         keymap_layout.draw_keyboard_shorcuts(self, layout, context)
 

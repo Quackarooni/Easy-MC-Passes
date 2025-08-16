@@ -126,7 +126,8 @@ class EMP_OT_EXPORT_PASSES(Operator):
             bpy.app.handlers.render_complete.append(load_multilayer_image)
             return {'FINISHED'}
         else:
-            bpy.ops.render.render('EXEC_SCREEN', scene=main_scene.name)
+            op_mode = 'INVOKE_SCREEN' if prefs.force_render_window else 'EXEC_SCREEN'
+            bpy.ops.render.render(op_mode, scene=main_scene.name)
             self.report({'INFO'}, f"Successfully exported files at \"{export_path}\"")
             return {'FINISHED'}
 
