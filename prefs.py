@@ -428,6 +428,11 @@ keymap_layout.register_properties(preferences=EasyMCPassesPreferences)
 @persistent
 def onFileLoaded(dummy):
     setDefaultCollectionValue()
+    props = get_addon_properties()
+    default_path = fetch_user_preferences("default_export_path")
+
+    if props.export_path == "" and default_path != "":
+        props.export_path = default_path
 
 
 classes = (
